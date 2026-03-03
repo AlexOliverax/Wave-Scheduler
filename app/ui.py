@@ -502,8 +502,8 @@ class MainWindow(QMainWindow):
     def init_ui(self):
         """Initialize the user interface."""
         self.setWindowTitle("Waves Scheduler")
-        self.setMinimumSize(520, 700)
-        self.resize(620, 860)
+        self.setMinimumSize(650, 750)
+        self.resize(750, 860)
 
         if "app_icon" in self.config and os.path.exists(self.config["app_icon"]):
             self.setWindowIcon(QIcon(self.config["app_icon"]))
@@ -596,9 +596,9 @@ class MainWindow(QMainWindow):
         rec_layout = QFormLayout()
         rec_layout.setSpacing(8)
 
-        self.ideal_bandwidth_label = QLabel("N/A")
-        self.ideal_waves_label = QLabel("N/A")
-        self.devices_per_wave_label = QLabel("N/A")
+        self.ideal_bandwidth_label = QLabel("-")
+        self.ideal_waves_label = QLabel("-")
+        self.devices_per_wave_label = QLabel("-")
 
         for lbl in [self.ideal_bandwidth_label, self.ideal_waves_label, self.devices_per_wave_label]:
             lbl.setFont(QFont("Segoe UI", 10, QFont.Bold))
@@ -616,7 +616,6 @@ class MainWindow(QMainWindow):
         config_group = QGroupBox(get_translation("wave_configuration", self.current_language))
         config_layout = QFormLayout()
         config_layout.setSpacing(10)
-        config_layout.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
 
         # RFC
         self.rfc_input = QLineEdit()
@@ -625,6 +624,7 @@ class MainWindow(QMainWindow):
         self.rfc_hint.setStyleSheet("color: #64748b; font-size: 8pt;")
         self.rfc_input.textChanged.connect(self._validate_rfc)
         rfc_layout = QVBoxLayout()
+        rfc_layout.setContentsMargins(0, 0, 0, 0)
         rfc_layout.setSpacing(2)
         rfc_layout.addWidget(self.rfc_input)
         rfc_layout.addWidget(self.rfc_hint)
@@ -666,6 +666,7 @@ class MainWindow(QMainWindow):
 
         # Fuso Horário
         tz_layout = QHBoxLayout()
+        tz_layout.setContentsMargins(0, 0, 0, 0)
         self.timezone_combo = QComboBox()
         self.timezone_combo.addItems(get_timezone_list())
         current_timezone = self.config.get("timezone", "America/Sao_Paulo")
@@ -1068,7 +1069,7 @@ class MainWindow(QMainWindow):
             save_config(self.config)
         else:
             for lbl in [self.ideal_bandwidth_label, self.ideal_waves_label, self.devices_per_wave_label]:
-                lbl.setText("N/A")
+                lbl.setText("-")
                 lbl.setStyleSheet("color: #64748b; font-weight: bold;")
 
     # ── Wave Generation ────────────────────────────────────────────────────────

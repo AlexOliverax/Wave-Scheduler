@@ -3,7 +3,7 @@
 ; ─────────────────────────────────────────────────────────────────────────────
 
 #define AppName    "Waves Scheduler"
-#define AppVersion "2.0.0"
+#define AppVersion "2.0.2"
 #define AppPublisher "Antigravity"
 #define AppExeName "Waves Scheduler.exe"
 
