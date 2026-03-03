@@ -1,0 +1,5 @@
+content = open('app/updater.py', encoding='utf-8').read()
+content = content.replace('GITHUB_OWNER = "seu-usuario"       # ex: "antigravity-dev"', 'GITHUB_OWNER = "AlexOliverax"')
+content = content.replace('GITHUB_REPO  = "waves-scheduler"   # ex: "waves-scheduler"', 'GITHUB_REPO  = "Wave-Scheduler"')
+open('app/updater.py', 'w', encoding='utf-8').write(content)
+print("OK — GITHUB_OWNER=AlexOliverax  GITHUB_REPO=Wave-Scheduler")

@@ -1,0 +1,78 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'   # Dispara em tags como v2.0.0, v2.1.0, etc.
+
+permissions:
+  contents: write  # Necessário para criar Releases
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── 2. Python ────────────────────────────────────────────────────────────
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # ── 3. Dependências ──────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller PyQt5 pandas openpyxl pytz holidays pywin32 numpy
+
+      # ── 4. Atualizar VERSION com a tag do push ───────────────────────────────
+      - name: Set VERSION from tag
+        run: |
+          $tag = "${{ github.ref_name }}" -replace '^v', ''
+          Set-Content -Path "VERSION" -Value $tag
+          Write-Host "VERSION set to $tag"
+        shell: pwsh
+
+      # ── 5. Compilar com PyInstaller ──────────────────────────────────────────
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller "Waves Scheduler.spec"
+
+      # ── 6. Baixar Inno Setup e compilar instalador ───────────────────────────
+      - name: Install Inno Setup
+        run: |
+          $url = "https://files.jrsoftware.org/is/6/innosetup-6.3.3.exe"
+          Invoke-WebRequest -Uri $url -OutFile "$env:TEMP\innosetup.exe"
+          Start-Process -FilePath "$env:TEMP\innosetup.exe" -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" -Wait
+        shell: pwsh
+
+      - name: Build Installer with Inno Setup
+        run: |
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          & $iscc "WavesScheduler_Setup.iss"
+        shell: pwsh
+
+      # ── 7. Criar GitHub Release e fazer upload do instalador ─────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "Waves Scheduler ${{ github.ref_name }}"
+          body: |
+            ## 🌊 Waves Scheduler ${{ github.ref_name }}
+
+            ### Como instalar
+            1. Baixe o arquivo `WavesScheduler_Setup_*.exe` abaixo
+            2. Execute o instalador
+            3. O app será atualizado automaticamente
+
+            ### Changelog
+            _Adicione as mudanças desta versão aqui._
+          files: |
+            installer/WavesScheduler_Setup_v*.exe
+          draft: false
+          prerelease: false

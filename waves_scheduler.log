@@ -1,0 +1,242 @@
+2025-04-18 18:34:32,216 - app.utils - INFO - Configuration saved successfully
+2025-04-18 18:34:32,217 - app.utils - INFO - Created default configuration file
+2025-04-18 18:45:22,712 - app.utils - INFO - Configuration loaded successfully
+2025-04-18 18:45:22,782 - __main__ - ERROR - Application failed to start: name 'QIcon' is not defined
+2025-04-18 18:47:28,248 - app.utils - INFO - Configuration loaded successfully
+2025-04-18 18:47:28,337 - __main__ - ERROR - Application failed to start: cannot access local variable 'main_layout' where it is not associated with a value
+2025-04-18 18:48:51,660 - app.utils - INFO - Configuration loaded successfully
+2025-04-18 18:49:31,007 - app.utils - INFO - Configuration saved successfully
+2025-04-18 18:49:31,057 - app.core - INFO - CSV loaded successfully with 3930 devices
+2025-04-18 18:50:58,688 - app.core - INFO - Excel file generated successfully: C:/Users/alext/OneDrive/Documentos 1/waves_schedule_20250418_185044.xlsx
+2025-04-18 18:55:52,731 - app.utils - INFO - Configuration loaded successfully
+2025-04-18 18:56:00,311 - app.utils - INFO - Configuration saved successfully
+2025-04-18 18:56:00,333 - app.core - INFO - CSV loaded successfully with 3930 devices
+2025-04-18 18:56:44,302 - app.core - ERROR - Error generating Excel file: Invalid character / found in sheet title
+2025-04-18 18:57:01,542 - app.core - ERROR - Error generating Excel file: Invalid character / found in sheet title
+2025-04-18 18:57:26,404 - app.core - ERROR - Error generating Excel file: Invalid character / found in sheet title
+2025-04-18 18:59:05,832 - app.core - ERROR - Error generating Excel file: Invalid character / found in sheet title
+2025-04-18 18:59:49,851 - app.utils - INFO - Configuration saved successfully
+2025-04-18 18:59:49,873 - app.core - INFO - CSV loaded successfully with 3930 devices
+2025-04-18 18:59:56,894 - app.core - ERROR - Error generating Excel file: Invalid character / found in sheet title
+2025-04-18 19:01:18,554 - app.utils - INFO - Configuration loaded successfully
+2025-04-18 19:01:24,038 - app.utils - INFO - Configuration saved successfully
+2025-04-18 19:01:24,058 - app.core - INFO - CSV loaded successfully with 3930 devices
+2025-04-18 19:01:32,306 - app.core - INFO - Excel file generated successfully: C:/Users/alext/Downloads/waves_schedule_20250418_190130.xlsx
+2025-04-18 19:19:34,176 - app.utils - INFO - Configuration loaded successfully
+2025-04-18 19:19:41,830 - app.utils - INFO - Configuration saved successfully
+2025-04-18 19:22:41,049 - app.utils - INFO - Configuration loaded successfully
+2025-04-18 19:22:48,969 - app.utils - INFO - Configuration saved successfully
+2025-04-18 19:22:49,000 - app.core - INFO - File loaded successfully with 3930 devices
+2025-04-18 19:23:25,194 - app.core - INFO - Excel file generated successfully: C:/Users/alext/Downloads/waves_schedule_20250418_192319.xlsx
+2025-04-18 19:35:33,573 - app.utils - INFO - Configuration loaded successfully
+2025-04-18 19:35:50,750 - app.utils - INFO - Configuration saved successfully
+2025-04-18 19:37:15,348 - app.utils - INFO - Configuration loaded successfully
+2025-04-18 19:37:21,725 - app.utils - INFO - Configuration saved successfully
+2025-04-18 19:39:07,730 - app.utils - INFO - Configuration loaded successfully
+2025-04-18 19:39:14,638 - app.utils - INFO - Configuration saved successfully
+2025-04-18 19:41:59,534 - app.utils - INFO - Configuration loaded successfully
+2025-04-18 19:42:06,814 - app.utils - INFO - Configuration saved successfully
+2025-04-18 19:47:56,855 - app.utils - INFO - Configuration loaded successfully
+2025-04-18 19:48:55,130 - app.utils - INFO - Configuration loaded successfully
+2025-04-18 19:49:17,150 - app.utils - INFO - Configuration saved successfully
+2025-04-19 16:23:23,061 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 16:24:09,594 - app.utils - INFO - Configuration saved successfully
+2025-04-19 16:26:05,960 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 16:29:23,410 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 16:29:49,131 - app.utils - INFO - Configuration saved successfully
+2025-04-19 16:32:11,210 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 16:32:26,243 - app.utils - INFO - Configuration saved successfully
+2025-04-19 16:35:18,811 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 16:35:42,105 - app.utils - INFO - Configuration saved successfully
+2025-04-19 16:42:54,413 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 16:43:14,942 - app.utils - INFO - Configuration saved successfully
+2025-04-19 16:43:29,718 - app.core - INFO - File loaded successfully with 3930 devices
+2025-04-19 16:43:45,330 - app.core - INFO - Excel file generated successfully: C:/Users/alext/Downloads/waves_schedule_20250419_164341.xlsx
+2025-04-19 16:51:48,031 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 16:56:51,530 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 17:01:25,449 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 17:03:38,645 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 17:05:53,248 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 17:06:20,311 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 17:06:44,200 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 17:07:11,873 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 17:09:28,490 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 17:10:22,975 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 17:13:39,759 - app.utils - INFO - Configuration loaded successfully
+2025-04-19 17:14:19,301 - app.utils - INFO - Configuration saved successfully
+2025-04-19 17:14:57,126 - app.core - INFO - File loaded successfully with 3930 devices
+2025-04-19 17:15:20,974 - app.core - INFO - Excel file generated successfully: C:/Users/alext/Downloads/waves_schedule_20250419_171515.xlsx
+2025-04-29 14:08:02,543 - app.utils - INFO - Configuration loaded successfully
+2025-04-29 14:11:06,541 - app.utils - INFO - Configuration saved successfully
+2025-04-29 14:11:16,181 - app.core - INFO - File loaded successfully with 3930 devices
+2025-04-29 14:11:59,435 - app.core - INFO - Excel file generated successfully: C:/Users/alext/Downloads/waves_schedule_20250429_141151.xlsx
+2025-04-29 16:43:49,613 - app.utils - INFO - Configuration loaded successfully
+2025-04-29 16:46:37,925 - app.utils - INFO - Configuration loaded successfully
+2025-04-29 18:53:20,784 - app.utils - INFO - Configuration loaded successfully
+2025-04-29 18:53:38,838 - app.utils - INFO - Configuration saved successfully
+2025-04-29 18:53:40,396 - app.core - INFO - Loaded 3930 devices from C:/Users/alext/Downloads/search-results-2025-04-18 21_36_50.csv
+2025-04-29 18:54:07,348 - app.core - INFO - Distributed 3930 devices into 20 waves
+2025-04-29 18:54:10,248 - app.core - ERROR - Error generating Excel file: No Excel writer 'Alexsando Oliveira'
+2025-04-29 18:56:00,342 - app.utils - INFO - Configuration loaded successfully
+2025-04-29 18:56:14,322 - app.utils - INFO - Configuration saved successfully
+2025-04-29 18:56:15,532 - app.core - INFO - Loaded 3930 devices from C:/Users/alext/Downloads/search-results-2025-04-18 21_36_50.csv
+2025-04-29 18:56:19,685 - app.core - INFO - Distributed 3930 devices into 20 waves
+2025-04-29 18:56:27,070 - app.core - ERROR - Error generating Excel file: No Excel writer 'Alexsando_Oliveira'
+2025-04-29 18:58:30,884 - app.utils - INFO - Configuration loaded successfully
+2025-04-29 18:58:44,724 - app.utils - INFO - Configuration saved successfully
+2025-04-29 18:58:46,098 - app.core - INFO - Loaded 3930 devices from C:/Users/alext/Downloads/search-results-2025-04-18 21_36_50.csv
+2025-04-29 18:59:01,187 - app.core - INFO - Distributed 3930 devices into 20 waves
+2025-04-29 18:59:07,135 - app.core - ERROR - Error generating Excel file: No Excel writer 'Openpylx'
+2025-04-29 19:01:34,970 - app.utils - INFO - Configuration loaded successfully
+2025-04-29 19:01:48,213 - app.utils - INFO - Configuration saved successfully
+2025-04-29 19:01:49,326 - app.core - INFO - Loaded 3930 devices from C:/Users/alext/Downloads/search-results-2025-04-18 21_36_50.csv
+2025-04-29 19:02:01,784 - app.core - INFO - Distributed 3930 devices into 20 waves
+2025-04-29 19:02:11,299 - app.core - INFO - Excel file generated: C:/Users/alext/Downloads/waves_schedule_20250429_190201.xlsx
+2025-04-29 19:32:43,873 - app.utils - INFO - Configuration loaded successfully
+2025-04-29 19:32:57,601 - app.utils - INFO - Configuration saved successfully
+2025-04-29 19:37:02,988 - app.utils - INFO - Configuration loaded successfully
+2025-04-29 19:37:11,385 - app.utils - INFO - Configuration saved successfully
+2025-04-29 19:40:02,244 - app.utils - INFO - Configuration loaded successfully
+2025-04-29 19:40:10,675 - app.utils - INFO - Configuration saved successfully
+2025-04-29 19:40:30,619 - app.core - INFO - Loaded 3930 devices from C:/Users/alext/Downloads/search-results-2025-04-18 21_36_50.csv
+2025-04-29 19:41:57,321 - app.core - INFO - Distributed 3930 devices into 10 waves
+2025-04-29 19:42:01,144 - app.core - ERROR - Error generating Excel file: Invalid character / found in sheet title
+2025-04-29 19:44:04,752 - app.utils - INFO - Configuration loaded successfully
+2025-04-29 19:44:13,546 - app.utils - INFO - Configuration saved successfully
+2025-04-29 19:44:28,851 - app.core - INFO - Loaded 3930 devices from C:/Users/alext/Downloads/search-results-2025-04-18 21_36_50.csv
+2025-04-29 19:45:20,743 - app.core - INFO - Distributed 3930 devices into 30 waves
+2025-04-29 19:45:24,954 - app.core - INFO - Excel file generated: C:/Users/alext/Downloads/waves_schedule_20250429_194520.xlsx
+2025-04-30 18:19:13,758 - app.utils - INFO - Configuration loaded successfully
+2025-08-02 15:33:27,190 - app.utils - INFO - Configuration loaded successfully
+2025-08-02 15:48:35,790 - app.utils - INFO - Configuration loaded successfully
+2025-08-02 16:05:10,498 - app.utils - INFO - Configuration loaded successfully
+2025-08-02 16:05:43,713 - app.utils - INFO - Configuration saved successfully
+2025-08-02 16:05:47,185 - app.core - INFO - Loaded 3930 devices from C:/Users/alext/Downloads/search-results-2025-04-18 21_36_50.csv
+2025-08-02 16:07:09,298 - app.core - INFO - Distributed 3930 devices into 10 waves
+2025-08-02 16:07:24,317 - app.core - INFO - Excel file generated: C:/Users/alext/Downloads/waves_schedule_20250802_160709.xlsx
+2025-08-02 16:08:28,925 - app.core - INFO - Distributed 3930 devices into 10 waves
+2025-08-02 16:08:34,139 - app.core - INFO - Excel file generated: C:/Users/alext/Downloads/waves_schedule_20250802_160828.xlsx
+2025-08-02 16:08:34,139 - app.ui - ERROR - Error generating waves: name 'outlook_events_created' is not defined
+2025-08-02 16:12:33,298 - app.utils - INFO - Configuration loaded successfully
+2025-08-02 16:13:20,660 - app.utils - INFO - Configuration saved successfully
+2025-08-02 16:13:22,129 - app.core - INFO - Loaded 3930 devices from C:/Users/alext/Downloads/search-results-2025-04-18 21_36_50.csv
+2025-08-02 16:15:02,140 - app.core - INFO - Distributed 3930 devices into 5 waves
+2025-08-02 16:15:06,802 - app.core - INFO - Excel file generated: C:/Users/alext/Downloads/waves_schedule_20250802_161502.xlsx
+2025-08-02 16:16:35,778 - app.core - INFO - Distributed 3930 devices into 5 waves
+2025-08-04 09:59:49,531 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 09:59:53,669 - __main__ - ERROR - Application failed to start: 'MainWindow' object has no attribute 'open_timezone_selector'
+2025-08-04 10:23:18,331 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 10:23:23,434 - __main__ - ERROR - Application failed to start: 'MainWindow' object has no attribute 'on_country_changed'
+2025-08-04 10:32:11,646 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 10:32:36,298 - app.ui - ERROR - Error showing holidays: 'MainWindow' object has no attribute 'start_date'
+2025-08-04 10:33:38,763 - app.ui - ERROR - Error showing holidays: 'MainWindow' object has no attribute 'start_date'
+2025-08-04 10:39:02,810 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 10:39:20,684 - app.ui - ERROR - Error showing holidays: get_brazilian_holidays() takes 1 positional argument but 2 were given
+2025-08-04 10:39:45,377 - app.utils - INFO - Configuration saved successfully
+2025-08-04 10:39:45,378 - app.ui - INFO - Country changed to: Other
+2025-08-04 10:39:50,341 - app.utils - INFO - Configuration saved successfully
+2025-08-04 10:39:50,341 - app.ui - INFO - Country changed to: BR
+2025-08-04 10:39:54,661 - app.ui - ERROR - Error showing holidays: get_brazilian_holidays() takes 1 positional argument but 2 were given
+2025-08-04 10:41:05,382 - app.utils - INFO - Configuration saved successfully
+2025-08-04 10:41:07,497 - app.core - INFO - Loaded 3930 devices from C:/Users/alext/Downloads/search-results-2025-04-18 21_36_50.csv
+2025-08-04 10:41:22,750 - app.ui - ERROR - Error showing holidays: get_brazilian_holidays() takes 1 positional argument but 2 were given
+2025-08-04 10:41:37,836 - app.ui - ERROR - Error showing holidays: get_brazilian_holidays() takes 1 positional argument but 2 were given
+2025-08-04 10:58:28,984 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 11:07:52,191 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 11:07:52,848 - __main__ - ERROR - Application failed to start: name 'get_country_states' is not defined
+2025-08-04 11:10:39,638 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 11:11:13,877 - app.utils - INFO - Configuration saved successfully
+2025-08-04 11:11:13,943 - app.ui - INFO - Country changed to: AR
+2025-08-04 11:12:24,514 - app.utils - INFO - Configuration saved successfully
+2025-08-04 11:12:24,571 - app.ui - INFO - Country changed to: CL
+2025-08-04 11:34:33,465 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 11:34:34,111 - __main__ - ERROR - Application failed to start: 'MainWindow' object has no attribute 'current_language'
+2025-08-04 11:34:47,233 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 11:34:47,842 - __main__ - ERROR - Application failed to start: 'MainWindow' object has no attribute 'current_language'
+2025-08-04 11:55:50,082 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 11:56:19,271 - app.utils - INFO - Configuration saved successfully
+2025-08-04 11:56:20,134 - app.ui - INFO - Country changed to: BR
+2025-08-04 11:57:04,236 - app.utils - INFO - Configuration saved successfully
+2025-08-04 11:57:04,249 - app.ui - INFO - Country changed to: AR
+2025-08-04 11:57:15,289 - app.utils - INFO - Configuration saved successfully
+2025-08-04 11:57:15,299 - app.ui - INFO - Country changed to: CL
+2025-08-04 11:57:21,844 - app.utils - INFO - Configuration saved successfully
+2025-08-04 11:57:21,914 - app.ui - INFO - Country changed to: PE
+2025-08-04 11:57:28,526 - app.utils - INFO - Configuration saved successfully
+2025-08-04 11:57:28,529 - app.ui - INFO - Country changed to: BR
+2025-08-04 12:03:27,300 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 12:03:27,881 - __main__ - ERROR - Application failed to start: cannot access local variable 'timezone_widget' where it is not associated with a value
+2025-08-04 12:05:41,875 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 12:05:44,021 - __main__ - ERROR - Application failed to start: 'MainWindow' object has no attribute 'start_time_input'
+2025-08-04 12:06:59,912 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 12:07:00,551 - __main__ - ERROR - Application failed to start: 'MainWindow' object has no attribute 'location_input'
+2025-08-04 12:19:28,719 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 12:19:34,498 - __main__ - ERROR - Application failed to start: 'MainWindow' object has no attribute 'outlook_checkbox'
+2025-08-04 13:41:47,221 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 13:41:49,839 - __main__ - ERROR - Application failed to start: 'MainWindow' object has no attribute 'on_language_changed'
+2025-08-04 13:47:13,416 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 13:47:15,144 - __main__ - ERROR - Application failed to start: 'MainWindow' object has no attribute 'on_country_changed'
+2025-08-04 13:58:15,598 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 13:59:23,546 - app.utils - INFO - Configuration saved successfully
+2025-08-04 13:59:23,568 - app.ui - INFO - Country changed to: AR
+2025-08-04 13:59:28,421 - app.utils - INFO - Configuration saved successfully
+2025-08-04 13:59:28,422 - app.ui - INFO - Language changed to: es-US
+2025-08-04 13:59:54,948 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 14:04:47,320 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 14:05:14,962 - app.utils - INFO - Configuration saved successfully
+2025-08-04 14:05:15,836 - app.ui - INFO - Country changed to: BR
+2025-08-04 14:05:18,141 - app.utils - INFO - Configuration saved successfully
+2025-08-04 14:05:18,141 - app.ui - INFO - Language changed to: pt-BR
+2025-08-04 14:05:29,338 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 14:05:49,978 - app.ui - ERROR - Error checking holiday date: 'MainWindow' object has no attribute 'language'
+2025-08-04 15:59:54,627 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 16:12:28,424 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 16:16:30,700 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 16:17:58,252 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 16:23:19,143 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 17:11:31,862 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 17:24:52,491 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 17:47:15,172 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 18:12:10,138 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 18:13:21,605 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 18:26:58,125 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 18:27:51,969 - app.utils - INFO - Configuration saved successfully
+2025-08-04 18:27:51,970 - app.ui - INFO - Timezone changed to: UTC
+2025-08-04 18:28:03,852 - app.utils - INFO - Configuration saved successfully
+2025-08-04 18:28:03,852 - app.ui - INFO - Timezone changed to: UTC
+2025-08-04 18:28:21,244 - app.utils - INFO - Configuration saved successfully
+2025-08-04 18:28:21,245 - app.ui - INFO - Timezone changed to: America/Sao_Paulo
+2025-08-04 18:58:11,595 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 18:58:32,148 - app.utils - INFO - Configuration saved successfully
+2025-08-04 18:58:34,555 - app.core - INFO - Loaded 3930 devices from C:/Users/alext/Downloads/search-results-2025-04-18 21_36_50.csv
+2025-08-04 19:02:12,790 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 19:05:04,561 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 19:20:44,659 - app.utils - INFO - Configuration saved successfully
+2025-08-04 19:20:46,315 - app.core - INFO - Loaded 3930 devices from C:/Users/alext/Downloads/search-results-2025-04-18 21_36_50.csv
+2025-08-04 19:42:15,657 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 19:42:31,707 - app.ui - ERROR - Error showing holidays: get_translation() takes from 1 to 2 positional arguments but 4 were given
+2025-08-04 19:45:18,819 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 20:08:17,231 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 20:08:22,191 - app.ui - ERROR - Error showing holidays: name 'translate_holiday_name' is not defined
+2025-08-04 20:10:36,936 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 20:10:41,934 - app.ui - ERROR - Error showing holidays: name 'translate_holiday_name' is not defined
+2025-08-04 20:59:41,348 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 21:01:25,048 - app.utils - INFO - Configuration saved successfully
+2025-08-04 21:01:25,048 - app.ui - INFO - Language changed to: es-US
+2025-08-04 21:01:36,896 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 21:01:43,097 - app.utils - INFO - Configuration saved successfully
+2025-08-04 21:01:44,012 - app.ui - INFO - Country changed to: AR
+2025-08-04 21:11:48,033 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 21:14:08,517 - app.utils - INFO - Configuration saved successfully
+2025-08-04 21:14:08,536 - app.ui - INFO - Country changed to: CL
+2025-08-04 21:16:56,560 - app.utils - INFO - Configuration saved successfully
+2025-08-04 21:16:56,749 - app.ui - INFO - Country changed to: PE
+2025-08-04 21:19:00,558 - app.utils - INFO - Configuration loaded successfully
+2025-08-04 21:23:49,716 - app.utils - INFO - Configuration saved successfully
+2025-08-04 21:23:49,722 - app.ui - INFO - Country changed to: BR
+2025-08-04 21:23:56,289 - app.utils - INFO - Configuration saved successfully
+2025-08-04 21:23:56,289 - app.ui - INFO - Language changed to: pt-BR
+2025-08-05 08:24:38,291 - app.utils - INFO - Configuration loaded successfully
+2025-08-05 08:26:07,126 - app.utils - INFO - Configuration loaded successfully
+2025-08-05 08:52:07,690 - app.utils - INFO - Configuration loaded successfully
+2025-08-05 09:07:17,096 - app.utils - INFO - Configuration loaded successfully
