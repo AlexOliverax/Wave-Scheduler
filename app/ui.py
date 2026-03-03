@@ -501,7 +501,9 @@ class MainWindow(QMainWindow):
     # ── UI Setup ──────────────────────────────────────────────────────────────
     def init_ui(self):
         """Initialize the user interface."""
-        self.setWindowTitle("Waves Scheduler")
+        from app.updater import get_current_version
+        version = get_current_version()
+        self.setWindowTitle(f"Waves Scheduler v{version}")
         self.setMinimumSize(650, 750)
         self.resize(750, 860)
 
@@ -529,12 +531,21 @@ class MainWindow(QMainWindow):
             logo_label.setPixmap(pixmap.scaled(180, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation))
             header_layout.addWidget(logo_label)
         else:
-            title_label = QLabel("🌊 Waves Scheduler")
+            from app.updater import get_current_version
+            version = get_current_version()
+            title_label = QLabel(f"🌊 Waves Scheduler v{version}")
             title_label.setFont(QFont("Segoe UI", 18, QFont.Bold))
             title_label.setStyleSheet("color: #4f76ff; letter-spacing: 1px;")
             header_layout.addWidget(title_label)
 
         header_layout.addStretch()
+
+        # Botão Atualizar
+        self.update_btn = QPushButton("🔄  " + get_translation("check_updates", self.current_language))
+        self.update_btn.setMaximumWidth(135)
+        self.update_btn.setToolTip(get_translation("check_updates_tip", self.current_language))
+        self.update_btn.clicked.connect(self.check_for_updates)
+        header_layout.addWidget(self.update_btn)
 
         # Botão Atualizar
         self.update_btn = QPushButton("🔄  " + get_translation("check_updates", self.current_language))
@@ -839,6 +850,9 @@ class MainWindow(QMainWindow):
         # Verificar atualizações em segundo plano ao iniciar
         check_for_update_async(self._on_update_check_done)
 
+        # Verificar atualizações em segundo plano ao iniciar
+        check_for_update_async(self._on_update_check_done)
+
     # ── Helpers ────────────────────────────────────────────────────────────────
     def _get_country_code(self):
         data = self.country_combo.currentData()
@@ -903,6 +917,115 @@ class MainWindow(QMainWindow):
             f"  {get_translation('current_version_label', lang)}: v{current}\\n"
             f"  {get_translation('new_version_label', lang)}: {latest}\\n\\n"
             f"📋 {notes}\\n\\n"
+            f"{get_translation('update_prompt', lang)}"
+        )
+
+        reply = QMessageBox.question(
+            self,
+            f"🌊 {name}",
+            msg,
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes,
+        )
+
+        if reply != QMessageBox.Yes:
+            self.statusBar().showMessage(
+                f"⏭️ {get_translation('update_skipped', lang)}"
+            )
+            return
+
+        download_url = update_info.get("download_url")
+        if not download_url:
+            QMessageBox.warning(
+                self,
+                "Download",
+                get_translation("update_no_asset", lang) + "\n" + update_info.get("html_url", "")
+            )
+            return
+
+        self.statusBar().showMessage("⬇️ " + get_translation("downloading_update", lang))
+        self.update_btn.setEnabled(False)
+
+        def _download_done():
+            ok = download_and_install(
+                download_url,
+                progress_callback=lambda done, total: self.statusBar().showMessage(
+                    f"⬇️ {done//1024:,} KB / {total//1024:,} KB"
+                )
+            )
+            from PyQt5.QtCore import QTimer
+            if ok:
+                QTimer.singleShot(0, lambda: (
+                    QMessageBox.information(
+                        self,
+                        get_translation("success", lang),
+                        get_translation("update_installing", lang)
+                    ),
+                    self.close()
+                ))
+            else:
+                QTimer.singleShot(0, lambda: (
+                    self.update_btn.setEnabled(True),
+                    QMessageBox.critical(
+                        self,
+                        get_translation("error", lang),
+                        get_translation("update_download_error", lang)
+                    )
+                ))
+
+        import threading
+        threading.Thread(target=_download_done, daemon=True, name="updater-download").start()
+
+    def check_for_updates(self, silent=False):
+        """Verifica atualizações manualmente (com feedback visual)."""
+        self.update_btn.setEnabled(False)
+        self.update_btn.setText("🔄  ...")
+        self.statusBar().showMessage("🔍 " + get_translation("checking_updates", self.current_language))
+
+        def _done(info):
+            # Callback rodando na thread — usar QTimer para voltar à UI thread
+            from PyQt5.QtCore import QTimer
+            QTimer.singleShot(0, lambda: self._on_update_check_done(info, silent=silent))
+
+        check_for_update_async(_done)
+
+    def _on_update_check_done(self, update_info, silent=False):
+        """Callback chamado quando a verificação de updates termina."""
+        lang = self.current_language
+        self.update_btn.setEnabled(True)
+        self.update_btn.setText("🔄  " + get_translation("check_updates", lang))
+
+        if update_info is None:
+            # Sem update
+            if not silent:
+                self.statusBar().showMessage("✅ " + get_translation("up_to_date", lang))
+                QMessageBox.information(
+                    self,
+                    get_translation("check_updates", lang),
+                    get_translation("up_to_date", lang)
+                )
+            else:
+                self.statusBar().showMessage("✅ v" + get_current_version())
+            return
+
+        # Update disponível
+        current = update_info.get("current_version", "?")
+        latest  = update_info.get("tag_name", "?")
+        name    = update_info.get("name", latest)
+        notes   = update_info.get("body", "")[:400] or get_translation("no_release_notes", lang)
+
+        msg = (
+            f"🆕 {get_translation('update_available', lang)}
+
+"
+            f"  {get_translation('current_version_label', lang)}: v{current}
+"
+            f"  {get_translation('new_version_label', lang)}: {latest}
+
+"
+            f"📋 {notes}
+
+"
             f"{get_translation('update_prompt', lang)}"
         )
 
