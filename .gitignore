@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+venv/
+env/
+.env
+.venv
+*.log
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Instalers & Outputs
+installer/
+WavesScheduler_Setup_*.exe
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# App Specific data
+history.json
+config.json
