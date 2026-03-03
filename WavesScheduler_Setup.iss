@@ -50,7 +50,7 @@ Uninstallable=yes
 
 
 [Languages]
-Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
+Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 
@@ -78,4 +78,5 @@ Filename: "{app}\{#AppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(
 
 
 [UninstallDelete]
-Type: files; Name: "{app}\waves_scheduler.log"
+; Apaga a pasta inteira do aplicativo (incluindo logs, history.json, config.json etc)
+Type: filesandordirs; Name: "{app}"
