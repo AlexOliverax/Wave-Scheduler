@@ -1,27 +1,25 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+from PyInstaller.utils.hooks import collect_submodules, collect_data_files
+
+# Coleta automaticamente TODOS os submódulos do pacote 'app'
+app_hidden = collect_submodules('app')
 
 a = Analysis(
     ['main.py'],
-    pathex=[],
+    pathex=['.'],
     binaries=[],
     datas=[
         ('icon\\WavesS.ico', 'icon'),
-        ('icon\\WaveS.ico', 'icon'),
-        ('icon\\DHL.gif', 'icon'),
+        ('icon\\WaveS.ico',  'icon'),
+        ('icon\\DHL.gif',    'icon'),
+        ('VERSION',          '.'),
     ],
-    hiddenimports=[
-        # Módulos do app
-        'app',
-        'app.ui',
-        'app.core',
-        'app.utils',
-        'app.outlook',
-        'app.history',
-        'app.dialogs',
+    hiddenimports=app_hidden + [
         # Bibliotecas padrão
-        'encodings', 
-        'openpyxl', 
+        'encodings',
+        # openpyxl
+        'openpyxl',
         'openpyxl.cell._writer',
         # Holidays e países
         'holidays',
@@ -33,7 +31,16 @@ a = Analysis(
         'holidays.countries.peru',
         'holidays.countries.colombia',
         'holidays.countries.mexico',
-        'holidays.countries.canada'
+        'holidays.countries.canada',
+        # PyQt5 extras (evitar erros de plataforma)
+        'PyQt5',
+        'PyQt5.QtWidgets',
+        'PyQt5.QtCore',
+        'PyQt5.QtGui',
+        # win32com (Outlook)
+        'win32com',
+        'win32com.client',
+        'pywintypes',
     ],
     hookspath=[],
     hooksconfig={},

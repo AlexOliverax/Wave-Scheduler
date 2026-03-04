@@ -1,11 +1,12 @@
 ; ─────────────────────────────────────────────────────────────────────────────
 ; Waves Scheduler — Inno Setup Script v2.0
+; A versão é lida automaticamente do arquivo VERSION na raiz do projeto.
 ; ─────────────────────────────────────────────────────────────────────────────
 
-#define AppName    "Waves Scheduler"
-#define AppVersion "2.0.3"
-#define AppPublisher "Antigravity"
-#define AppExeName "Waves Scheduler.exe"
+#define AppName      "Waves Scheduler"
+#define AppVersion   Trim(FileRead(FileOpen("VERSION")))
+#define AppPublisher "AlexOliverax"
+#define AppExeName   "Waves Scheduler.exe"
 
 [Setup]
 AppId={{A7F3D12B-4C8E-4F9A-B234-56789ABCDEF0}
@@ -13,13 +14,14 @@ AppName={#AppName}
 AppVersion={#AppVersion}
 AppVerName={#AppName} {#AppVersion}
 AppPublisher={#AppPublisher}
-AppPublisherURL=https://github.com/antigravity
+AppPublisherURL=https://github.com/AlexOliverax/Wave-Scheduler
+AppSupportURL=https://github.com/AlexOliverax/Wave-Scheduler/issues
+AppUpdatesURL=https://github.com/AlexOliverax/Wave-Scheduler/releases
 DefaultDirName={autopf}\{#AppName}
 DefaultGroupName={#AppName}
 AllowNoIcons=yes
 
 ; Define o diretório base para os arquivos em [Files]
-; Sem isso, o Inno Setup resolve caminhos relativos a partir do CWD do IDE
 SourceDir=E:\Projetos - Antigravity\Project - Waves Scheduler
 
 ; Ícone que aparece no atalho de desinstalação — usa o ícone dentro do app instalado
@@ -60,11 +62,13 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 ; Copiar TODA a pasta gerada pelo PyInstaller
-; O caminho Source é relativo ao local do arquivo .iss
 Source: "dist\Waves Scheduler\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; Copiar ícones explicitamente para garantir atalhos com ícone correto
 Source: "icon\*"; DestDir: "{app}\icon"; Flags: ignoreversion
+
+; Incluir o arquivo VERSION para o auto-updater detectar a versão instalada
+Source: "VERSION"; DestDir: "{app}"; Flags: ignoreversion
 
 
 [Icons]

@@ -429,7 +429,7 @@ TRANSLATIONS = {
         "wave_col_weekday": "Día de la Semana",
         "wave_col_devices": "Dispositivos",
         "confirm_save": "Confirmar y Guardar",
-        "rfc_invalid": "Texto muito curto (mínimo 3 caracteres)",
+        "rfc_invalid": "Texto demasiado corto (mínimo 3 caracteres)",
         "rfc_valid": "RFC válido",
         "email_body_label": "Cuerpo del Email:",
         "email_body_placeholder": "Hola,\n\nAdjunto el cronograma de {{wave}} para {{fecha}}.\n\nAtentamente,",
@@ -570,7 +570,7 @@ TRANSLATIONS = {
         
         # Messages
         "supported_formats": "Formats de Fichier Pris en Charge",
-        "formats_info": "Vous pouvez sélectionner les formats suivants:\\n\\n- Fichiers CSV (.csv)\\n- Fichiers Excel (.xlsx, .xls)",
+        "formats_info": "Vous pouvez sélectionner les formats suivants:\n\n- Fichiers CSV (.csv)\n- Fichiers Excel (.xlsx, .xls)",
         "file_error": "Erreur lors du chargement du fichier",
         "processing_file": "Traitement du fichier...",
         "waves_generated": "Vagues générées avec succès!",
@@ -710,7 +710,7 @@ TRANSLATIONS = {
         
         # Nachrichten
         "supported_formats": "Unterstützte Dateiformate",
-        "formats_info": "Sie können die folgenden Formate auswählen:\\n\\n- CSV-Dateien (.csv)\\n- Excel-Dateien (.xlsx, .xls)",
+        "formats_info": "Sie können die folgenden Formate auswählen:\n\n- CSV-Dateien (.csv)\n- Excel-Dateien (.xlsx, .xls)",
         "file_error": "Fehler beim Laden der Datei",
         "processing_file": "Datei wird verarbeitet...",
         "waves_generated": "Wellen erfolgreich generiert!",
@@ -949,15 +949,17 @@ def get_translation(key, language="pt-BR", *args, **kwargs):
         logger.error(f"Error getting translation: {str(e)}")
         return key
 
-def get_supported_languages():
+def get_supported_languages(language="pt-BR"):
     """
-    Get list of supported languages.
-    
+    Get list of supported languages, with names shown in the given language.
+
+    Args:
+        language (str): Current UI language to use for language names
+
     Returns:
-        dict: Dictionary with language codes and names
+        dict: Dictionary with language codes and display names
     """
-    current_lang = DEFAULT_CONFIG.get("language", "pt-BR")
-    return TRANSLATIONS.get(current_lang, TRANSLATIONS["pt-BR"]).get("languages", {
+    return TRANSLATIONS.get(language, TRANSLATIONS["pt-BR"]).get("languages", {
         "pt-BR": "Português (Brasil)",
         "en-US": "English (United States)",
         "es-US": "Español (Estados Unidos)"

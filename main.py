@@ -1,5 +1,4 @@
 import sys
-import json
 import logging
 import os
 from PyQt5.QtWidgets import QApplication
@@ -7,22 +6,28 @@ from PyQt5.QtGui import QIcon
 from app.ui import MainWindow
 from app.utils import load_config
 
-# Configure logging
+# ── Caminhos base ─────────────────────────────────────────────────────────────
+# sys.frozen é definido pelo PyInstaller quando rodando como .exe compilado
+if getattr(sys, 'frozen', False):
+    BASE_DIR = os.path.dirname(sys.executable)
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+ICON_DIR   = os.path.join(BASE_DIR, "icon")
+APP_ICON   = os.path.join(ICON_DIR, "WavesS.ico")
+LOGO_IMAGE = os.path.join(ICON_DIR, "WaveSpp.PNG")
+LOG_FILE   = os.path.join(BASE_DIR, "waves_scheduler.log")
+
+# ── Logging ───────────────────────────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("waves_scheduler.log"),
+        logging.FileHandler(LOG_FILE, encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
-
-# Define icon paths relative to the executable / script location
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ICON_DIR = os.path.join(BASE_DIR, "icon")
-APP_ICON = os.path.join(ICON_DIR, "WavesS.ico")
-LOGO_IMAGE = os.path.join(ICON_DIR, "WaveSpp.PNG")
 
 
 def main():

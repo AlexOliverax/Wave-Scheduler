@@ -147,6 +147,7 @@ def download_and_install(download_url: str, progress_callback=None) -> bool:
     Returns:
         True se o download e a execução do instalador iniciaram com sucesso
     """
+    tmp_path = ""
     try:
         with tempfile.NamedTemporaryFile(
             suffix="_WavesScheduler_Setup.exe",
@@ -175,7 +176,7 @@ def download_and_install(download_url: str, progress_callback=None) -> bool:
 
     except Exception as e:
         logger.error(f"Updater: erro no download/instalação — {e}")
-        if os.path.exists(tmp_path):
+        if tmp_path and os.path.exists(tmp_path):
             try:
                 os.remove(tmp_path)
             except Exception:

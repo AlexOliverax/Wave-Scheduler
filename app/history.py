@@ -2,15 +2,23 @@
 app/history.py – Persistência do histórico de schedules gerados.
 """
 import os
+import sys
 import json
 import logging
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if getattr(sys, "frozen", False):
+    # Executável PyInstaller: usa o diretório do .exe
+    BASE_DIR = os.path.dirname(sys.executable)
+else:
+    # Modo desenvolvimento: sobe um nível a partir de app/
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 HISTORY_FILE = os.path.join(BASE_DIR, "history.json")
 MAX_HISTORY_ENTRIES = 50
+
 
 
 def _load_raw() -> list:
