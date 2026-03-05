@@ -66,7 +66,7 @@ def _parse_version(version_str: str) -> Tuple[int, ...]:
     return tuple(result)
 
 
-def check_for_update(timeout: int = 8) -> Optional[Dict]:
+def check_for_update(timeout: int = 15) -> Optional[Dict]:
     """
     Verifica se há uma versão mais nova no GitHub.
 
@@ -74,6 +74,14 @@ def check_for_update(timeout: int = 8) -> Optional[Dict]:
         dict com 'tag_name', 'name', 'body', 'html_url', 'download_url' se houver update.
         None se estiver na versão mais recente ou se não conseguir verificar.
     """
+    import ssl
+    # Redes corporativas (ex: DHL) usam inspecção SSL que substitui certificados.
+    # O Python não reconhece o cert da empresa e rejeita a conexão.
+    # Para o updater (somente leitura da API GitHub), desabilitar a verificação é seguro.
+    ssl_ctx = ssl.create_default_context()
+    ssl_ctx.check_hostname = False
+    ssl_ctx.verify_mode   = ssl.CERT_NONE
+
     try:
         req = urllib.request.Request(
             GITHUB_API,
@@ -82,7 +90,7 @@ def check_for_update(timeout: int = 8) -> Optional[Dict]:
                 "User-Agent": f"WavesScheduler/{get_current_version()}",
             }
         )
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        with urllib.request.urlopen(req, timeout=timeout, context=ssl_ctx) as resp:
             data = json.loads(resp.read().decode("utf-8"))
 
         latest_tag = data.get("tag_name", "0.0.0")
@@ -98,11 +106,11 @@ def check_for_update(timeout: int = 8) -> Optional[Dict]:
                     break
 
             return {
-                "tag_name":    latest_tag,
-                "name":        data.get("name", latest_tag),
-                "body":        data.get("body", ""),
-                "html_url":    data.get("html_url", ""),
-                "download_url": download_url,
+                "tag_name":       latest_tag,
+                "name":           data.get("name", latest_tag),
+                "body":           data.get("body", ""),
+                "html_url":       data.get("html_url", ""),
+                "download_url":   download_url,
                 "current_version": current,
             }
         return None
