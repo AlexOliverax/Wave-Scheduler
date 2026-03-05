@@ -906,18 +906,33 @@ class MainWindow(QMainWindow):
         self.update_btn.setText("🔄  ...")
         self.statusBar().showMessage("🔍 " + get_translation("checking_updates", self.current_language))
 
+        # Guard: restaura o botão após 15s mesmo se o callback nunca vier
+        from PyQt5.QtCore import QTimer
+        self._update_guard = QTimer(self)
+        self._update_guard.setSingleShot(True)
+        self._update_guard.timeout.connect(self._restore_update_btn)
+        self._update_guard.start(15000)
+
         def _done(info):
             # Callback rodando na thread — usar QTimer para voltar à UI thread
-            from PyQt5.QtCore import QTimer
             QTimer.singleShot(0, lambda: self._on_update_check_done(info, silent=silent))
 
         check_for_update_async(_done)
 
-    def _on_update_check_done(self, update_info, silent=False):
-        """Callback chamado quando a verificação de updates termina."""
+    def _restore_update_btn(self):
+        """Restaura o botão de update ao estado original (chamado pelo guard timer ou pelo callback)."""
         lang = self.current_language
         self.update_btn.setEnabled(True)
         self.update_btn.setText("🔄  " + get_translation("check_updates", lang))
+
+    def _on_update_check_done(self, update_info, silent=False):
+        """Callback chamado quando a verificação de updates termina."""
+        # Cancelar o guard timer (se ainda estiver rodando)
+        if hasattr(self, "_update_guard") and self._update_guard.isActive():
+            self._update_guard.stop()
+
+        lang = self.current_language
+        self._restore_update_btn()
 
         if update_info is None:
             # Sem update
