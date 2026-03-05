@@ -1,42 +1,62 @@
+"""
+app/outlook.py — Integração com Outlook via COM ou .ics
+
+Estratégia:
+  1. Tenta usar automação COM (Outlook clássico instalado)
+  2. Se COM não disponível → gera arquivo .ics e abre no Outlook
+     O Outlook (qualquer versão, incluindo web/novo) importa .ics automaticamente.
+"""
+import os
 import logging
+import tempfile
+import subprocess
 from datetime import datetime
+from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
-# ── Constantes COM do Outlook ──────────────────────────────────────────────────
+# ── Constantes COM ─────────────────────────────────────────────────────────────
 _OL_APPOINTMENT_ITEM = 0
-_OL_MEETING         = 1   # MeetingStatus: transforma em convite de reunião
-_OL_REQUIRED        = 1   # Recipient.Type
-_OL_OPTIONAL        = 2   # Recipient.Type
+_OL_MEETING          = 1
+_OL_REQUIRED         = 1
+_OL_OPTIONAL         = 2
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Helpers internos
+# ─────────────────────────────────────────────────────────────────────────────
 
 def _to_com_datetime(dt: datetime):
-    """
-    Converte datetime Python → pywintypes.Time (formato nativo COM).
-    O Outlook 365 moderno rejeita strings e objetos datetime Python puros.
-    """
+    """datetime Python → pywintypes.Time (COM-safe)."""
     try:
         import pywintypes
         return pywintypes.Time(dt.timetuple())
     except Exception:
-        # Fallback: string ISO — Outlook ainda consegue interpretar
         return dt.strftime("%Y-%m-%d %H:%M:%S")
 
 
-def is_outlook_available() -> bool:
-    """
-    Verifica se o Outlook COM (clássico) está disponível no sistema.
-    Retorna False se o 'Novo Outlook' (baseado em web) estiver ativo,
-    pois ele não suporta automação COM.
-    """
+def _is_com_available() -> bool:
+    """Retorna True só se o Outlook clássico COM estiver registrado."""
     try:
         import win32com.client
-        app = win32com.client.Dispatch("Outlook.Application")
-        # Verificar se é uma instância válida com MAPI
-        ns = app.GetNamespace("MAPI")
-        return ns is not None
+        win32com.client.Dispatch("Outlook.Application")
+        return True
     except Exception:
         return False
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# API pública
+# ─────────────────────────────────────────────────────────────────────────────
+
+def is_outlook_available() -> bool:
+    """
+    Verifica se a integração Outlook está disponível de QUALQUER forma:
+    - Outlook clássico COM, OU
+    - Arquivo .ics pode ser aberto (qualquer Outlook)
+    Sempre retorna True em Windows, pois .ics sempre pode ser gerado.
+    """
+    return True   # .ics funciona em qualquer ambiente
 
 
 def create_outlook_events(
@@ -51,120 +71,220 @@ def create_outlook_events(
     email_body=None,
 ) -> bool:
     """
-    Cria eventos/reuniões no Outlook para cada wave.
+    Cria eventos no Outlook para cada wave.
 
-    Compatível com Outlook 365 (clássico) v2408+.
-    Não funciona com o 'Novo Outlook' (web-based), que não suporta COM.
-
-    Returns:
-        bool: True se TODOS os eventos foram criados, False se algum falhou.
+    Tenta COM primeiro; se não disponível, gera .ics e abre no Outlook.
     """
     if required_participants is None:
         required_participants = []
     if optional_participants is None:
         optional_participants = []
 
-    has_participants = bool(required_participants or optional_participants)
+    if _is_com_available():
+        logger.info("Outlook COM disponível — usando automação COM.")
+        return _create_via_com(
+            wave_labels, start_time, end_time, rfc, all_day,
+            location, required_participants, optional_participants, email_body,
+        )
+    else:
+        logger.info("Outlook COM indisponível (Novo Outlook?) — usando .ics.")
+        return _create_via_ics(
+            wave_labels, start_time, end_time, rfc, all_day,
+            location, required_participants, optional_participants, email_body,
+        )
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Implementação COM (Outlook clássico)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _create_via_com(
+    wave_labels, start_time, end_time, rfc, all_day,
+    location, required_participants, optional_participants, email_body,
+) -> bool:
     try:
         import win32com.client
-    except ImportError:
-        logger.error("pywin32 não está instalado — necessário para integração COM.")
-        return False
-
-    # ── Conectar ao Outlook ────────────────────────────────────────────────────
-    try:
         outlook = win32com.client.Dispatch("Outlook.Application")
-        outlook.GetNamespace("MAPI")          # Valida que o perfil MAPI existe
     except Exception as e:
-        logger.error("Outlook não disponível (ou Novo Outlook ativo): %s", e)
+        logger.error("Falha ao conectar ao Outlook COM: %s", e)
         return False
 
-    created = 0
-    failed  = 0
+    has_participants = bool(required_participants or optional_participants)
+    created = failed = 0
 
     for i, wave_label in enumerate(wave_labels, 1):
         try:
-            # ── Extrair data ───────────────────────────────────────────────────
             parts = wave_label.split(" - ")
-            if len(parts) < 2:
-                raise ValueError(f"Formato inválido de wave_label: '{wave_label}'")
             wave_date = datetime.strptime(parts[1].strip(), "%d/%m/%Y")
 
-            # ── Criar AppointmentItem ──────────────────────────────────────────
             appt = outlook.CreateItem(_OL_APPOINTMENT_ITEM)
-
             appt.Subject  = f"Wave {i} - {rfc}" if rfc else f"Wave {i}"
             appt.Location = location or ""
 
-            # ── Datas ─────────────────────────────────────────────────────────
             if all_day:
                 appt.AllDayEvent = True
-                # Data como string no formato MM/DD/YYYY (padrão EUA do COM)
                 appt.Start = wave_date.strftime("%m/%d/%Y")
             else:
-                start_dt = datetime.combine(wave_date.date(), start_time)
-                end_dt   = datetime.combine(wave_date.date(), end_time)
-                appt.Start = _to_com_datetime(start_dt)
-                appt.End   = _to_com_datetime(end_dt)
+                appt.Start = _to_com_datetime(datetime.combine(wave_date.date(), start_time))
+                appt.End   = _to_com_datetime(datetime.combine(wave_date.date(), end_time))
 
-            # ── Participantes → converte em Reunião ───────────────────────────
             if has_participants:
-                # MeetingStatus = 1 (olMeeting): obrigatório para convites
                 appt.MeetingStatus = _OL_MEETING
-
                 for email in required_participants:
-                    recip = appt.Recipients.Add(email.strip())
-                    recip.Type = _OL_REQUIRED
-
+                    r = appt.Recipients.Add(email.strip())
+                    r.Type = _OL_REQUIRED
                 for email in optional_participants:
-                    recip = appt.Recipients.Add(email.strip())
-                    recip.Type = _OL_OPTIONAL
-
-                # ResolveAll() pode retornar False para emails externos — não é fatal
+                    r = appt.Recipients.Add(email.strip())
+                    r.Type = _OL_OPTIONAL
                 try:
                     appt.Recipients.ResolveAll()
-                except Exception as e_res:
-                    logger.warning("ResolveAll() falhou (emails externos?) — continuando: %s", e_res)
+                except Exception:
+                    pass  # Emails externos não resolvem — não é fatal
 
-            # ── Corpo do email ─────────────────────────────────────────────────
-            if email_body:
-                body = email_body
-                body = body.replace("{{wave}}", wave_label)
-                body = body.replace("{{rfc}}", rfc or "")
-                body = body.replace("{{local}}", location or "")
-                body = body.replace("{{data}}", wave_date.strftime("%d/%m/%Y"))
-                body = body.replace(
-                    "{{participantes}}",
-                    "; ".join(required_participants) if required_participants else "Nenhum",
-                )
-            else:
-                body = (
-                    f"Wave: {wave_label}\n"
-                    f"RFC: {rfc or 'N/A'}\n"
-                    f"Local: {location or 'A definir'}\n\n"
-                    f"Participantes Obrigatórios: "
-                    f"{'; '.join(required_participants) if required_participants else 'Nenhum'}\n"
-                    f"Participantes Opcionais: "
-                    f"{'; '.join(optional_participants) if optional_participants else 'Nenhum'}\n\n"
-                    f"Este é um evento automático criado pelo Waves Scheduler."
-                )
-
-            appt.Body = body
+            appt.Body = _build_body(wave_label, rfc, location, wave_date,
+                                    required_participants, optional_participants, email_body)
             appt.ReminderSet = True
             appt.ReminderMinutesBeforeStart = 15
-
-            # ── Salvar (não envia convites — usuário envia manualmente) ────────
             appt.Save()
             created += 1
-            logger.info("Evento criado: Wave %d (%s)", i, wave_date.strftime("%d/%m/%Y"))
+            logger.info("COM: Wave %d criada (%s)", i, wave_date.strftime("%d/%m/%Y"))
 
         except Exception as e:
             failed += 1
-            logger.error("Falha ao criar Wave %d: %s", i, e, exc_info=True)
+            logger.error("COM: Falha Wave %d: %s", i, e, exc_info=True)
 
-    logger.info(
-        "Outlook: %d eventos criados, %d falhas (total: %d waves)",
-        created, failed, len(wave_labels),
-    )
+    logger.info("COM: %d criados, %d falhas", created, failed)
     return failed == 0
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Implementação .ics (Novo Outlook / qualquer versão)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _ics_datetime(dt: datetime, all_day: bool = False) -> str:
+    """Formata datetime para o formato iCalendar."""
+    if all_day:
+        return dt.strftime("%Y%m%d")
+    return dt.strftime("%Y%m%dT%H%M%S")
+
+
+def _ics_escape(text: str) -> str:
+    """Escapa caracteres especiais para iCalendar."""
+    return (text or "")                \
+        .replace("\\", "\\\\")         \
+        .replace(";", "\\;")           \
+        .replace(",", "\\,")           \
+        .replace("\n", "\\n")          \
+        .replace("\r", "")
+
+
+def _create_via_ics(
+    wave_labels, start_time, end_time, rfc, all_day,
+    location, required_participants, optional_participants, email_body,
+) -> bool:
+    """
+    Gera um arquivo .ics com todos os eventos e abre no Outlook.
+    O Outlook importa o arquivo automaticamente.
+    """
+    lines = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//Waves Scheduler//PT",
+        "CALSCALE:GREGORIAN",
+        "METHOD:REQUEST" if (required_participants or optional_participants) else "METHOD:PUBLISH",
+    ]
+
+    for i, wave_label in enumerate(wave_labels, 1):
+        try:
+            parts = wave_label.split(" - ")
+            wave_date = datetime.strptime(parts[1].strip(), "%d/%m/%Y")
+
+            uid = f"{uuid4()}@waves-scheduler"
+            subject = _ics_escape(f"Wave {i} - {rfc}" if rfc else f"Wave {i}")
+            loc     = _ics_escape(location or "")
+            body    = _ics_escape(
+                _build_body(wave_label, rfc, location, wave_date,
+                            required_participants, optional_participants, email_body)
+            )
+
+            lines.append("BEGIN:VEVENT")
+            lines.append(f"UID:{uid}")
+            lines.append(f"SUMMARY:{subject}")
+            lines.append(f"LOCATION:{loc}")
+            lines.append(f"DESCRIPTION:{body}")
+
+            if all_day:
+                lines.append(f"DTSTART;VALUE=DATE:{_ics_datetime(wave_date, all_day=True)}")
+                lines.append(f"DTEND;VALUE=DATE:{_ics_datetime(wave_date, all_day=True)}")
+            else:
+                start_dt = datetime.combine(wave_date.date(), start_time)
+                end_dt   = datetime.combine(wave_date.date(), end_time)
+                lines.append(f"DTSTART:{_ics_datetime(start_dt)}")
+                lines.append(f"DTEND:{_ics_datetime(end_dt)}")
+
+            # Participantes
+            for email in required_participants:
+                lines.append(f"ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;RSVP=TRUE:mailto:{email.strip()}")
+            for email in optional_participants:
+                lines.append(f"ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=OPT-PARTICIPANT;RSVP=TRUE:mailto:{email.strip()}")
+
+            lines.append("BEGIN:VALARM")
+            lines.append("TRIGGER:-PT15M")
+            lines.append("ACTION:DISPLAY")
+            lines.append("DESCRIPTION:Lembrete")
+            lines.append("END:VALARM")
+            lines.append("END:VEVENT")
+            logger.info(".ics: Wave %d adicionada (%s)", i, wave_date.strftime("%d/%m/%Y"))
+
+        except Exception as e:
+            logger.error(".ics: Falha Wave %d: %s", i, e, exc_info=True)
+
+    lines.append("END:VCALENDAR")
+
+    # Salvar e abrir o arquivo .ics
+    try:
+        ics_content = "\r\n".join(lines) + "\r\n"
+        tmp = tempfile.NamedTemporaryFile(
+            suffix=f"_waves_{rfc or 'schedule'}.ics",
+            delete=False,
+            mode="w",
+            encoding="utf-8",
+            dir=tempfile.gettempdir(),
+        )
+        tmp.write(ics_content)
+        tmp_path = tmp.name
+        tmp.close()
+
+        logger.info(".ics: Arquivo gerado em %s", tmp_path)
+
+        # Abrir com o programa padrão (deve ser o Outlook)
+        os.startfile(tmp_path)
+        logger.info(".ics: Arquivo aberto no Outlook")
+        return True
+
+    except Exception as e:
+        logger.error(".ics: Falha ao gerar/abrir .ics: %s", e, exc_info=True)
+        return False
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Helper compartilhado
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _build_body(wave_label, rfc, location, wave_date, req, opt, email_body) -> str:
+    if email_body:
+        body = email_body
+        body = body.replace("{{wave}}", wave_label)
+        body = body.replace("{{rfc}}", rfc or "")
+        body = body.replace("{{local}}", location or "")
+        body = body.replace("{{data}}", wave_date.strftime("%d/%m/%Y"))
+        body = body.replace("{{participantes}}", "; ".join(req) if req else "Nenhum")
+        return body
+    return (
+        f"Wave: {wave_label}\n"
+        f"RFC: {rfc or 'N/A'}\n"
+        f"Local: {location or 'A definir'}\n\n"
+        f"Participantes Obrigatórios: {'; '.join(req) if req else 'Nenhum'}\n"
+        f"Participantes Opcionais: {'; '.join(opt) if opt else 'Nenhum'}\n\n"
+        f"Este é um evento automático criado pelo Waves Scheduler."
+    )
