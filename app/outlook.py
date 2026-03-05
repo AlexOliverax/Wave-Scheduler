@@ -1,138 +1,170 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-def _to_com_datetime(dt):
+# ── Constantes COM do Outlook ──────────────────────────────────────────────────
+_OL_APPOINTMENT_ITEM = 0
+_OL_MEETING         = 1   # MeetingStatus: transforma em convite de reunião
+_OL_REQUIRED        = 1   # Recipient.Type
+_OL_OPTIONAL        = 2   # Recipient.Type
+
+
+def _to_com_datetime(dt: datetime):
     """
-    Converte um objeto datetime do Python para um formato compatível com o
-    COM do Outlook (pywintypes.DateTime), garantindo que as datas sejam
-    aceitas corretamente pela interface COM.
+    Converte datetime Python → pywintypes.Time (formato nativo COM).
+    O Outlook 365 moderno rejeita strings e objetos datetime Python puros.
     """
     try:
         import pywintypes
-        return pywintypes.Time(dt)
+        return pywintypes.Time(dt.timetuple())
     except Exception:
-        # Fallback: retornar como string no formato ISO para o COM interpretar
+        # Fallback: string ISO — Outlook ainda consegue interpretar
         return dt.strftime("%Y-%m-%d %H:%M:%S")
 
-def is_outlook_available():
-    """
-    Verifica se o Outlook COM está disponível no sistema.
 
-    Returns:
-        bool: True se o Outlook pode ser iniciado, False caso contrário
+def is_outlook_available() -> bool:
+    """
+    Verifica se o Outlook COM (clássico) está disponível no sistema.
+    Retorna False se o 'Novo Outlook' (baseado em web) estiver ativo,
+    pois ele não suporta automação COM.
     """
     try:
         import win32com.client
-        outlook = win32com.client.Dispatch("Outlook.Application")
-        return outlook is not None
+        app = win32com.client.Dispatch("Outlook.Application")
+        # Verificar se é uma instância válida com MAPI
+        ns = app.GetNamespace("MAPI")
+        return ns is not None
     except Exception:
         return False
 
-def create_outlook_events(wave_labels, start_time, end_time, rfc, all_day=False, location="",
-                          required_participants=None, optional_participants=None, email_body=None):
-    """
-    Cria eventos no Outlook para cada wave com participantes.
 
-    Args:
-        wave_labels (list): Lista de rótulos das waves
-        start_time (time): Horário de início
-        end_time (time): Horário de término
-        rfc (str): Número do RFC
-        all_day (bool): Se é um evento de dia inteiro
-        location (str): Local do evento
-        required_participants (list): Lista de emails dos participantes obrigatórios
-        optional_participants (list): Lista de emails dos participantes opcionais
-        email_body (str): Corpo do email personalizado. Suporta {{wave}}, {{rfc}}, {{local}},
-                          {{participantes}} como placeholders que serão substituídos automaticamente.
-                          Se None, usa o corpo padrão.
+def create_outlook_events(
+    wave_labels,
+    start_time,
+    end_time,
+    rfc,
+    all_day=False,
+    location="",
+    required_participants=None,
+    optional_participants=None,
+    email_body=None,
+) -> bool:
+    """
+    Cria eventos/reuniões no Outlook para cada wave.
+
+    Compatível com Outlook 365 (clássico) v2408+.
+    Não funciona com o 'Novo Outlook' (web-based), que não suporta COM.
 
     Returns:
-        bool: True se os eventos foram criados com sucesso, False caso contrário
+        bool: True se TODOS os eventos foram criados, False se algum falhou.
     """
+    if required_participants is None:
+        required_participants = []
+    if optional_participants is None:
+        optional_participants = []
+
+    has_participants = bool(required_participants or optional_participants)
+
     try:
         import win32com.client
-        # Verificar disponibilidade e conectar ao Outlook
-        try:
-            outlook = win32com.client.Dispatch("Outlook.Application")
-        except Exception as e:
-            logger.error(f"Outlook não está disponível: {str(e)}")
-            return False
-        
-        # Definir valores padrão
-        if required_participants is None:
-            required_participants = []
-        if optional_participants is None:
-            optional_participants = []
-        
-        for i, wave_label in enumerate(wave_labels, 1):
-            # Extrair a data do rótulo da wave (formato: "Wave X - dd/mm/yyyy")
-            date_str = wave_label.split(" - ")[1]
-            wave_date = datetime.strptime(date_str, "%d/%m/%Y")
-            
-            # Criar o evento
-            appointment = outlook.CreateItem(0)  # 0 = olAppointmentItem
-            
-            # Formato do título: "Wave 1 - RFC", "Wave 2 - RFC", etc.
-            appointment.Subject = f"Wave {i} - {rfc}"
-            appointment.Location = location or "A definir"
-            
-            if all_day:
-                appointment.AllDayEvent = True
-                appointment.Start = wave_date.strftime("%Y-%m-%d")
-            else:
-                # Combinar data e hora
-                start_datetime = datetime.combine(wave_date.date(), start_time)
-                end_datetime = datetime.combine(wave_date.date(), end_time)
-                
-                appointment.Start = _to_com_datetime(start_datetime)
-                appointment.End = _to_com_datetime(end_datetime)
-            
-            # Adicionar participantes obrigatórios
-            for email in required_participants:
-                recipient = appointment.Recipients.Add(email)
-                recipient.Type = 1  # 1 = olRequired (obrigatório)
-                
-            # Adicionar participantes opcionais
-            for email in optional_participants:
-                recipient = appointment.Recipients.Add(email)
-                recipient.Type = 2  # 2 = olOptional (opcional)
-            
-            # Resolver os destinatários
-            appointment.Recipients.ResolveAll()
-            
-            # Corpo do email: personalizado ou padrão
-            if email_body:
-                body = email_body.replace("{{wave}}", wave_label)
-                body = body.replace("{{rfc}}", rfc or "")
-                body = body.replace("{{local}}", location or "A definir")
-                body = body.replace("{{data}}", wave_date.strftime("%d/%m/%Y"))
-                body = body.replace("{{participantes}}", "; ".join(required_participants) if required_participants else "Nenhum")
-            else:
-                body = f"""Wave: {wave_label}
-RFC: {rfc}
-Local: {location or 'A definir'}
-
-Participantes Obrigatórios: {'; '.join(required_participants) if required_participants else 'Nenhum'}
-Participantes Opcionais: {'; '.join(optional_participants) if optional_participants else 'Nenhum'}
-
-Este é um evento automático criado pelo Waves Scheduler."""
-            appointment.Body = body
-            appointment.ReminderSet = True
-            appointment.ReminderMinutesBeforeStart = 15
-
-            # Salvar o evento (não envia convites automaticamente)
-            # Para enviar convites, o usuário pode abrir o evento no Outlook e enviar manualmente
-            appointment.Save()
-            
-            logger.info("Evento criado: Wave %d - %s em %s", i, rfc, wave_date.strftime('%d/%m/%Y'))
-            
-        logger.info(f"Eventos do Outlook criados com sucesso para {len(wave_labels)} waves")
-        logger.info(f"Participantes obrigatórios: {len(required_participants)}")
-        logger.info(f"Participantes opcionais: {len(optional_participants)}")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Erro ao criar eventos no Outlook: {str(e)}", exc_info=True)
+    except ImportError:
+        logger.error("pywin32 não está instalado — necessário para integração COM.")
         return False
+
+    # ── Conectar ao Outlook ────────────────────────────────────────────────────
+    try:
+        outlook = win32com.client.Dispatch("Outlook.Application")
+        outlook.GetNamespace("MAPI")          # Valida que o perfil MAPI existe
+    except Exception as e:
+        logger.error("Outlook não disponível (ou Novo Outlook ativo): %s", e)
+        return False
+
+    created = 0
+    failed  = 0
+
+    for i, wave_label in enumerate(wave_labels, 1):
+        try:
+            # ── Extrair data ───────────────────────────────────────────────────
+            parts = wave_label.split(" - ")
+            if len(parts) < 2:
+                raise ValueError(f"Formato inválido de wave_label: '{wave_label}'")
+            wave_date = datetime.strptime(parts[1].strip(), "%d/%m/%Y")
+
+            # ── Criar AppointmentItem ──────────────────────────────────────────
+            appt = outlook.CreateItem(_OL_APPOINTMENT_ITEM)
+
+            appt.Subject  = f"Wave {i} - {rfc}" if rfc else f"Wave {i}"
+            appt.Location = location or ""
+
+            # ── Datas ─────────────────────────────────────────────────────────
+            if all_day:
+                appt.AllDayEvent = True
+                # Data como string no formato MM/DD/YYYY (padrão EUA do COM)
+                appt.Start = wave_date.strftime("%m/%d/%Y")
+            else:
+                start_dt = datetime.combine(wave_date.date(), start_time)
+                end_dt   = datetime.combine(wave_date.date(), end_time)
+                appt.Start = _to_com_datetime(start_dt)
+                appt.End   = _to_com_datetime(end_dt)
+
+            # ── Participantes → converte em Reunião ───────────────────────────
+            if has_participants:
+                # MeetingStatus = 1 (olMeeting): obrigatório para convites
+                appt.MeetingStatus = _OL_MEETING
+
+                for email in required_participants:
+                    recip = appt.Recipients.Add(email.strip())
+                    recip.Type = _OL_REQUIRED
+
+                for email in optional_participants:
+                    recip = appt.Recipients.Add(email.strip())
+                    recip.Type = _OL_OPTIONAL
+
+                # ResolveAll() pode retornar False para emails externos — não é fatal
+                try:
+                    appt.Recipients.ResolveAll()
+                except Exception as e_res:
+                    logger.warning("ResolveAll() falhou (emails externos?) — continuando: %s", e_res)
+
+            # ── Corpo do email ─────────────────────────────────────────────────
+            if email_body:
+                body = email_body
+                body = body.replace("{{wave}}", wave_label)
+                body = body.replace("{{rfc}}", rfc or "")
+                body = body.replace("{{local}}", location or "")
+                body = body.replace("{{data}}", wave_date.strftime("%d/%m/%Y"))
+                body = body.replace(
+                    "{{participantes}}",
+                    "; ".join(required_participants) if required_participants else "Nenhum",
+                )
+            else:
+                body = (
+                    f"Wave: {wave_label}\n"
+                    f"RFC: {rfc or 'N/A'}\n"
+                    f"Local: {location or 'A definir'}\n\n"
+                    f"Participantes Obrigatórios: "
+                    f"{'; '.join(required_participants) if required_participants else 'Nenhum'}\n"
+                    f"Participantes Opcionais: "
+                    f"{'; '.join(optional_participants) if optional_participants else 'Nenhum'}\n\n"
+                    f"Este é um evento automático criado pelo Waves Scheduler."
+                )
+
+            appt.Body = body
+            appt.ReminderSet = True
+            appt.ReminderMinutesBeforeStart = 15
+
+            # ── Salvar (não envia convites — usuário envia manualmente) ────────
+            appt.Save()
+            created += 1
+            logger.info("Evento criado: Wave %d (%s)", i, wave_date.strftime("%d/%m/%Y"))
+
+        except Exception as e:
+            failed += 1
+            logger.error("Falha ao criar Wave %d: %s", i, e, exc_info=True)
+
+    logger.info(
+        "Outlook: %d eventos criados, %d falhas (total: %d waves)",
+        created, failed, len(wave_labels),
+    )
+    return failed == 0
