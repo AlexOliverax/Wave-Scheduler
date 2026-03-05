@@ -15,8 +15,8 @@ from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
-# ── Constantes COM ─────────────────────────────────────────────────────────────
-_OL_APPOINTMENT_ITEM = 0
+# ── Constantes COM do Outlook ──────────────────────────────────────────────────
+_OL_APPOINTMENT_ITEM = 1   # olAppointmentItem (0 = olMailItem — erro comum!)
 _OL_MEETING          = 1
 _OL_REQUIRED         = 1
 _OL_OPTIONAL         = 2
