@@ -104,7 +104,13 @@ def _create_via_com(
 ) -> bool:
     try:
         import win32com.client
-        outlook = win32com.client.Dispatch("Outlook.Application")
+        # EnsureDispatch = early binding: gera type info e resolve propriedades
+        # corretamente, incluindo Location que falha no late binding (Dispatch).
+        try:
+            outlook = win32com.client.gencache.EnsureDispatch("Outlook.Application")
+        except Exception:
+            # Fallback: late binding se o gencache falhar
+            outlook = win32com.client.Dispatch("Outlook.Application")
     except Exception as e:
         logger.error("Falha ao conectar ao Outlook COM: %s", e)
         return False
@@ -118,8 +124,13 @@ def _create_via_com(
             wave_date = datetime.strptime(parts[1].strip(), "%d/%m/%Y")
 
             appt = outlook.CreateItem(_OL_APPOINTMENT_ITEM)
-            appt.Subject  = f"Wave {i} - {rfc}" if rfc else f"Wave {i}"
-            appt.Location = location or ""
+            appt.Subject = f"Wave {i} - {rfc}" if rfc else f"Wave {i}"
+            # Location pode falhar no late binding — protegido
+            if location:
+                try:
+                    appt.Location = location
+                except Exception:
+                    pass
 
             if all_day:
                 appt.AllDayEvent = True
