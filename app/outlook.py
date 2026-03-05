@@ -3,6 +3,19 @@ from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
+def _to_com_datetime(dt):
+    """
+    Converte um objeto datetime do Python para um formato compatível com o
+    COM do Outlook (pywintypes.DateTime), garantindo que as datas sejam
+    aceitas corretamente pela interface COM.
+    """
+    try:
+        import pywintypes
+        return pywintypes.Time(dt)
+    except Exception:
+        # Fallback: retornar como string no formato ISO para o COM interpretar
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+
 def is_outlook_available():
     """
     Verifica se o Outlook COM está disponível no sistema.
@@ -73,8 +86,8 @@ def create_outlook_events(wave_labels, start_time, end_time, rfc, all_day=False,
                 start_datetime = datetime.combine(wave_date.date(), start_time)
                 end_datetime = datetime.combine(wave_date.date(), end_time)
                 
-                appointment.Start = start_datetime
-                appointment.End = end_datetime
+                appointment.Start = _to_com_datetime(start_datetime)
+                appointment.End = _to_com_datetime(end_datetime)
             
             # Adicionar participantes obrigatórios
             for email in required_participants:
@@ -121,5 +134,5 @@ Este é um evento automático criado pelo Waves Scheduler."""
         return True
         
     except Exception as e:
-        logger.error(f"Erro ao criar eventos no Outlook: {str(e)}")
+        logger.error(f"Erro ao criar eventos no Outlook: {str(e)}", exc_info=True)
         return False

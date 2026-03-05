@@ -99,13 +99,6 @@ class WavePreviewDialog(QDialog):
             count_item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(i, 3, count_item)
 
-            # Zebra striping premium
-            if i % 2 == 0:
-                for col in range(4):
-                    item = self.table.item(i, col)
-                    if item:
-                        item.setBackground(QColor("#1e2235"))
-
         layout.addWidget(self.table)
 
         # Resumo

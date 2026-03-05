@@ -207,6 +207,38 @@ QListWidget::item:selected {
 }
 QListWidget::item:hover { background-color: #2d3155; }
 
+/* ── TableWidget / TableView ─────────────────────────────────────────────── */
+QTableWidget, QTableView {
+    background-color: #131726;
+    alternate-background-color: #1e2235;
+    gridline-color: transparent;
+    border: none;
+    outline: none;
+    color: #e2e8f0;
+    selection-background-color: rgba(79, 118, 255, 0.35);
+    selection-color: #ffffff;
+}
+QTableWidget::item, QTableView::item {
+    padding: 4px 8px;
+    border: none;
+}
+QTableWidget::item:selected, QTableView::item:selected {
+    background-color: rgba(79, 118, 255, 0.35);
+    color: #ffffff;
+}
+QHeaderView::section {
+    background-color: #1a1d2e;
+    color: #7bb3ff;
+    font-weight: bold;
+    padding: 6px 8px;
+    border: none;
+    border-bottom: 2px solid rgba(79, 118, 255, 0.4);
+    font-size: 9pt;
+}
+QHeaderView::section:hover {
+    background-color: #232740;
+}
+
 /* ── Separators ─────────────────────────────────────────────────────────── */
 QFrame[frameShape="4"] { /* HLine */
     background-color: rgba(79, 118, 255, 0.2);
