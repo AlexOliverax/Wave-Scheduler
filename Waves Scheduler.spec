@@ -40,6 +40,7 @@ a = Analysis(
         # win32com (Outlook)
         'win32com',
         'win32com.client',
+        'win32timezone',
         'pywintypes',
     ],
     hookspath=[],
