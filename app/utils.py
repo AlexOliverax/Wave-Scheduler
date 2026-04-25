@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import logging
 import pytz
@@ -131,14 +132,22 @@ TRANSLATIONS = {
         # Body do email Outlook
         "email_body_label": "Corpo do Email:",
         "email_body_placeholder": "Olá,\n\nSegue o agendamento da {{wave}} para {{data}}.\n\nAtenciosamente,",
-        # Dias da semana (fallback)
-        "monday": "Segunda-feira",
-        "tuesday": "Terça-feira",
-        "wednesday": "Quarta-feira",
-        "thursday": "Quinta-feira",
-        "friday": "Sexta-feira",
-        "saturday": "Sábado",
-        "sunday": "Domingo",
+        # Atualizações
+        "check_updates": "Verificar Atualizações",
+        "check_updates_tip": "Verificar se há uma versão mais recente",
+        "checking_updates": "Verificando atualizações...",
+        "up_to_date": "Você está na versão mais recente!",
+        "update_available": "Atualização disponível!",
+        "current_version_label": "Versão atual",
+        "new_version_label": "Nova versão",
+        "update_prompt": "Deseja baixar e instalar a atualização agora?",
+        "update_skipped": "Atualização ignorada",
+        "update_no_asset": "Instalador não encontrado na release. Acesse a página de releases:",
+        "downloading_update": "Baixando atualização...",
+        "update_installing": "O instalador foi baixado e será executado. A aplicação será fechada.",
+        "update_download_error": "Erro ao baixar a atualização. Tente novamente mais tarde.",
+        "no_release_notes": "Sem notas de versão.",
+
         
         # Países e feriados
         "countries": {
@@ -296,6 +305,21 @@ TRANSLATIONS = {
         # Outlook email body
         "email_body_label": "Email Body:",
         "email_body_placeholder": "Hello,\n\nPlease find the schedule for {{wave}} on {{date}}.\n\nBest regards,",
+        # Updates
+        "check_updates": "Check for Updates",
+        "check_updates_tip": "Check if a newer version is available",
+        "checking_updates": "Checking for updates...",
+        "up_to_date": "You are on the latest version!",
+        "update_available": "Update available!",
+        "current_version_label": "Current version",
+        "new_version_label": "New version",
+        "update_prompt": "Would you like to download and install the update now?",
+        "update_skipped": "Update skipped",
+        "update_no_asset": "Installer not found in the release. Visit the releases page:",
+        "downloading_update": "Downloading update...",
+        "update_installing": "The installer has been downloaded and will run. The application will close.",
+        "update_download_error": "Error downloading the update. Please try again later.",
+        "no_release_notes": "No release notes available.",
 
         # Países e feriados
         "countries": {
@@ -433,9 +457,23 @@ TRANSLATIONS = {
         "rfc_valid": "RFC válido",
         "email_body_label": "Cuerpo del Email:",
         "email_body_placeholder": "Hola,\n\nAdjunto el cronograma de {{wave}} para {{fecha}}.\n\nAtentamente,",
+        # Actualizaciones
+        "check_updates": "Buscar Actualizaciones",
+        "check_updates_tip": "Verificar si hay una versión más reciente",
+        "checking_updates": "Buscando actualizaciones...",
+        "up_to_date": "¡Está en la versión más reciente!",
+        "update_available": "¡Actualización disponible!",
+        "current_version_label": "Versión actual",
+        "new_version_label": "Nueva versión",
+        "update_prompt": "¿Desea descargar e instalar la actualización ahora?",
+        "update_skipped": "Actualización omitida",
+        "update_no_asset": "Instalador no encontrado en la release. Visite la página de releases:",
+        "downloading_update": "Descargando actualización...",
+        "update_installing": "El instalador ha sido descargado y se ejecutará. La aplicación se cerrará.",
+        "update_download_error": "Error al descargar la actualización. Intente de nuevo más tarde.",
+        "no_release_notes": "Sin notas de versión.",
         "holiday_warning": "⚠️ Advertencia: La fecha seleccionada ({}) es un feriado: {}",
-        "information": "Información",
-        "restart_required": "Por favor, reinicie la aplicación para aplicar los cambios de idioma.",
+
         
         # Países e feriados
         "countries": {
@@ -565,8 +603,7 @@ TRANSLATIONS = {
         "national_holidays": "Jours Fériés Nationaux",
         "close": "Fermer",
         "no_holidays_found": "Aucun jour férié trouvé pour cette année.",
-        "information": "Information",
-        "restart_required": "Veuillez redémarrer l'application pour appliquer les changements de langue.",
+
         
         # Messages
         "supported_formats": "Formats de Fichier Pris en Charge",
@@ -626,6 +663,21 @@ TRANSLATIONS = {
         "rfc_valid": "RFC valide",
         "email_body_label": "Corps du Email:",
         "email_body_placeholder": "Bonjour,\n\nVeuillez trouver le calendrier de {{vague}} pour {{date}}.\n\nCordialement,",
+        # Mises à jour
+        "check_updates": "Vérifier les Mises à Jour",
+        "check_updates_tip": "Vérifier si une version plus récente est disponible",
+        "checking_updates": "Vérification des mises à jour...",
+        "up_to_date": "Vous êtes sur la dernière version !",
+        "update_available": "Mise à jour disponible !",
+        "current_version_label": "Version actuelle",
+        "new_version_label": "Nouvelle version",
+        "update_prompt": "Voulez-vous télécharger et installer la mise à jour maintenant ?",
+        "update_skipped": "Mise à jour ignorée",
+        "update_no_asset": "Installateur non trouvé dans la release. Visitez la page des releases :",
+        "downloading_update": "Téléchargement de la mise à jour...",
+        "update_installing": "L'installateur a été téléchargé et va s'exécuter. L'application va se fermer.",
+        "update_download_error": "Erreur lors du téléchargement de la mise à jour. Veuillez réessayer plus tard.",
+        "no_release_notes": "Pas de notes de version.",
         
         # Pays et jours fériés
         "countries": {
@@ -705,8 +757,7 @@ TRANSLATIONS = {
         "national_holidays": "Nationale Feiertage",
         "close": "Schließen",
         "no_holidays_found": "Keine Feiertage für dieses Jahr gefunden.",
-        "information": "Information",
-        "restart_required": "Bitte starten Sie die Anwendung neu, um die Sprachänderungen anzuwenden.",
+
         
         # Nachrichten
         "supported_formats": "Unterstützte Dateiformate",
@@ -765,6 +816,21 @@ TRANSLATIONS = {
         "rfc_valid": "Gültiger RFC",
         "email_body_label": "E-Mail-Text:",
         "email_body_placeholder": "Hallo,\n\nbitte beachten Sie den Zeitplan für {{welle}} am {{datum}}.\n\nMit freundlichen Grüßen,",
+        # Aktualisierungen
+        "check_updates": "Nach Updates Suchen",
+        "check_updates_tip": "Prüfen, ob eine neuere Version verfügbar ist",
+        "checking_updates": "Suche nach Updates...",
+        "up_to_date": "Sie verwenden die neueste Version!",
+        "update_available": "Update verfügbar!",
+        "current_version_label": "Aktuelle Version",
+        "new_version_label": "Neue Version",
+        "update_prompt": "Möchten Sie das Update jetzt herunterladen und installieren?",
+        "update_skipped": "Update übersprungen",
+        "update_no_asset": "Installationsprogramm nicht in der Release gefunden. Besuchen Sie die Release-Seite:",
+        "downloading_update": "Update wird heruntergeladen...",
+        "update_installing": "Das Installationsprogramm wurde heruntergeladen und wird ausgeführt. Die Anwendung wird geschlossen.",
+        "update_download_error": "Fehler beim Herunterladen des Updates. Bitte versuchen Sie es später erneut.",
+        "no_release_notes": "Keine Versionshinweise verfügbar.",
         "holiday_warning": "⚠️ Warnung: Das ausgewählte Datum ({}) ist ein Feiertag: {}",
         
         # Länder und Feiertage
@@ -797,7 +863,11 @@ TRANSLATIONS = {
     }
 }
 
-CONFIG_FILE = "config.json"
+if getattr(sys, "frozen", False):
+    _CONFIG_BASE_DIR = os.path.dirname(sys.executable)
+else:
+    _CONFIG_BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_FILE = os.path.join(_CONFIG_BASE_DIR, "config.json")
 
 def load_config():
     """
@@ -1093,3 +1163,4 @@ def translate_holiday_name(holiday_name, language="pt-BR"):
         return holiday_translations.get(holiday_name, holiday_name)
     except Exception as e:
         logger.error(f"Error translating holiday name '{holiday_name}': {str(e)}")
+        return holiday_name

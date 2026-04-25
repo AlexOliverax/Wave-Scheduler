@@ -988,31 +988,26 @@ class MainWindow(QMainWindow):
         self.update_btn.setEnabled(False)
 
         def _download_done():
-            ok = download_and_install(
-                download_url,
-                progress_callback=lambda done, total: self.statusBar().showMessage(
-                    f"⬇️ {done//1024:,} KB / {total//1024:,} KB"
-                )
-            )
+            ok = download_and_install(download_url)
             from PyQt5.QtCore import QTimer
             if ok:
-                QTimer.singleShot(0, lambda: (
+                def _on_success():
                     QMessageBox.information(
                         self,
                         get_translation("success", lang),
                         get_translation("update_installing", lang)
-                    ),
+                    )
                     self.close()
-                ))
+                QTimer.singleShot(0, _on_success)
             else:
-                QTimer.singleShot(0, lambda: (
-                    self.update_btn.setEnabled(True),
+                def _on_failure():
+                    self.update_btn.setEnabled(True)
                     QMessageBox.critical(
                         self,
                         get_translation("error", lang),
                         get_translation("update_download_error", lang)
                     )
-                ))
+                QTimer.singleShot(0, _on_failure)
 
         import threading
         threading.Thread(target=_download_done, daemon=True, name="updater-download").start()

@@ -22,7 +22,7 @@ DefaultGroupName={#AppName}
 AllowNoIcons=yes
 
 ; Define o diretório base para os arquivos em [Files]
-SourceDir=E:\Projetos - Antigravity\Project - Waves Scheduler
+SourceDir=.
 
 ; Ícone que aparece no atalho de desinstalação — usa o ícone dentro do app instalado
 UninstallDisplayIcon={app}\icon\WavesS.ico

@@ -41,7 +41,7 @@ except Exception as e:
 # 4. Criar AppointmentItem simples (sem participantes)
 print("\n[4] Criando AppointmentItem simples (sem participantes)...")
 try:
-    appt = outlook.CreateItem(0)  # olAppointmentItem
+    appt = outlook.CreateItem(1)  # olAppointmentItem
     appt.Subject = "TESTE Waves Scheduler — SEM participantes"
     start_dt = datetime(2026, 3, 10, 9, 0, 0)
     end_dt   = datetime(2026, 3, 10, 10, 0, 0)
