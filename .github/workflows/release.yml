@@ -42,12 +42,10 @@ jobs:
         run: |
           pyinstaller "Waves Scheduler.spec"
 
-      # ── 6. Baixar Inno Setup e compilar instalador ───────────────────────────
+      # ── 6. Instalar Inno Setup via winget ──────────────────────────────────
       - name: Install Inno Setup
         run: |
-          $url = "https://files.jrsoftware.org/is/6/innosetup-6.7.1.exe"
-          Invoke-WebRequest -Uri $url -OutFile "$env:TEMP\innosetup.exe"
-          Start-Process -FilePath "$env:TEMP\innosetup.exe" -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" -Wait
+          choco install innosetup -y --no-progress
         shell: pwsh
 
       - name: Build Installer with Inno Setup
