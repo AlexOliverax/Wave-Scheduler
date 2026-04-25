@@ -45,7 +45,7 @@ jobs:
       # ── 6. Baixar Inno Setup e compilar instalador ───────────────────────────
       - name: Install Inno Setup
         run: |
-          $url = "https://files.jrsoftware.org/is/6/innosetup-6.3.3.exe"
+          $url = "https://files.jrsoftware.org/is/6/innosetup-6.7.1.exe"
           Invoke-WebRequest -Uri $url -OutFile "$env:TEMP\innosetup.exe"
           Start-Process -FilePath "$env:TEMP\innosetup.exe" -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" -Wait
         shell: pwsh
