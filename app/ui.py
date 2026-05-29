@@ -947,11 +947,9 @@ class MainWindow(QMainWindow):
         self.update_recommendations()
 
         # Verificar atualizações em segundo plano ao iniciar
-        def _init_done(info):
-            from PyQt5.QtCore import QTimer
-            QTimer.singleShot(0, lambda: self._on_update_check_done(info, silent=True))
-
-        check_for_update_async(_init_done)
+        self._init_update_thread = UpdateCheckThread()
+        self._init_update_thread.finished.connect(lambda info: self._on_update_check_done(info, silent=True))
+        self._init_update_thread.start()
 
     # ── Helpers ────────────────────────────────────────────────────────────────
     def _get_country_code(self):
