@@ -14,10 +14,10 @@ from PyQt5.QtCore import Qt, QDate, QTime, QThread, pyqtSignal
 from PyQt5.QtGui import QFont, QIcon, QPixmap
 
 from app.core import WavesScheduler
-from app.utils import (save_config, get_timezone_list, get_country_holidays_dict,
+from app.utils import (save_config, get_timezone_list, get_accumulated_holidays_dict,
                       get_supported_countries, is_holiday, get_translation,
                       get_supported_languages, get_supported_countries_translated,
-                      translate_holiday_name)
+                      translate_holiday_name, get_country_states)
 from app.outlook import create_outlook_events, is_outlook_available
 from app.dialogs import WavePreviewDialog, HistoryDialog
 from app.history import add_entry
@@ -254,7 +254,7 @@ class GenerateWavesThread(QThread):
     progress = pyqtSignal(int, str)   # (percent, step_label)
     finished = pyqtSignal(object, object, object)  # (wave_distribution, wave_labels, error)
 
-    def __init__(self, scheduler, num_waves, devices_per_wave, start_date, avoid_holidays, country_code):
+    def __init__(self, scheduler, num_waves, devices_per_wave, start_date, avoid_holidays, country_code, state=None, city=None, avoid_bridges=False):
         super().__init__()
         self.scheduler = scheduler
         self.num_waves = num_waves
@@ -262,20 +262,26 @@ class GenerateWavesThread(QThread):
         self.start_date = start_date
         self.avoid_holidays = avoid_holidays
         self.country_code = country_code
+        self.state = state
+        self.city = city
+        self.avoid_bridges = avoid_bridges
 
     def run(self):
         try:
             self.progress.emit(10, "step_holidays")
             # Pré-aquecer cache de feriados
-            from app.utils import get_country_holidays_dict
-            get_country_holidays_dict(self.start_date.year, self.country_code)
-            get_country_holidays_dict(self.start_date.year + 1, self.country_code)
+            from app.utils import get_accumulated_holidays_dict
+            get_accumulated_holidays_dict(self.start_date.year, self.country_code, self.state, self.city)
+            get_accumulated_holidays_dict(self.start_date.year + 1, self.country_code, self.state, self.city)
 
             self.progress.emit(30, "step_labels")
             wave_labels = self.scheduler.generate_wave_labels(
                 self.start_date, self.num_waves,
                 avoid_holidays=self.avoid_holidays,
-                country_code=self.country_code
+                country_code=self.country_code,
+                state=self.state,
+                city=self.city,
+                avoid_bridges=self.avoid_bridges
             )
 
             self.progress.emit(60, "step_devices")
@@ -447,11 +453,12 @@ class TimezoneSelectionDialog(QDialog):
 class HolidaysViewDialog(QDialog):
     """Dialog to view holidays for a specific year and location."""
 
-    def __init__(self, year, country, state, language="pt-BR", parent=None):
+    def __init__(self, year, country, state, city=None, language="pt-BR", parent=None):
         super().__init__(parent)
         self.year = year
         self.country = country
         self.state = state
+        self.city = city
         self.language = language
 
         window_title = get_translation("holidays_view", self.language).format(self.year, self.country)
@@ -479,7 +486,7 @@ class HolidaysViewDialog(QDialog):
         holidays_text.setReadOnly(True)
         holidays_text.setFont(QFont("Segoe UI", 9))
 
-        holidays_dict = get_country_holidays_dict(self.year, self.country)
+        holidays_dict = get_accumulated_holidays_dict(self.year, self.country, self.state, self.city)
 
         if holidays_dict:
             holidays_list = []
@@ -734,17 +741,52 @@ class MainWindow(QMainWindow):
         self.country_combo = QComboBox()
         for code, name in get_supported_countries_translated(self.current_language).items():
             self.country_combo.addItem(f"{code} — {name}", code)
-        default_country = self.config.get("country", "BR")
-        country_idx = self.country_combo.findData(default_country)
-        if country_idx >= 0:
-            self.country_combo.setCurrentIndex(country_idx)
+        self.country_combo.setCurrentIndex(0)
         self.country_combo.currentTextChanged.connect(self.on_country_changed)
         config_layout.addRow(get_translation("country", self.current_language), self.country_combo)
 
+        # Estado (Brasil)
+        self.state_combo = QComboBox()
+        self.state_combo.addItem("Nenhum", "Nenhum")
+        for code, name in get_country_states().items():
+            self.state_combo.addItem(f"{code} — {name}", code)
+        default_state = self.config.get("state", "Nenhum")
+        state_idx = self.state_combo.findData(default_state)
+        if state_idx >= 0:
+            self.state_combo.setCurrentIndex(state_idx)
+        self.state_combo.currentTextChanged.connect(self.on_state_changed)
+        config_layout.addRow(get_translation("state", self.current_language), self.state_combo)
+
+        # Cidade (Brasil)
+        self.city_combo = QComboBox()
+        self.city_combo.addItems([
+            "Nenhum",
+            "São Paulo",
+            "Rio de Janeiro",
+            "Belo Horizonte",
+            "Curitiba",
+            "Porto Alegre",
+            "Salvador",
+            "Recife",
+            "Fortaleza",
+            "Outra (Corpus Christi)"
+        ])
+        default_city = self.config.get("city", "Nenhum")
+        city_idx = self.city_combo.findText(default_city)
+        if city_idx >= 0:
+            self.city_combo.setCurrentIndex(city_idx)
+        self.city_combo.currentTextChanged.connect(self.on_city_changed)
+        config_layout.addRow(get_translation("city", self.current_language), self.city_combo)
+
         # Evitar feriados
         self.avoid_holidays_checkbox = QCheckBox(get_translation("avoid_holidays", self.current_language))
-        self.avoid_holidays_checkbox.setChecked(True)
+        self.avoid_holidays_checkbox.setChecked(self.config.get("avoid_holidays", True))
         config_layout.addRow("", self.avoid_holidays_checkbox)
+
+        # Evitar pontes (emendas)
+        self.avoid_bridges_checkbox = QCheckBox(get_translation("avoid_bridges", self.current_language))
+        self.avoid_bridges_checkbox.setChecked(self.config.get("avoid_bridges", True))
+        config_layout.addRow("", self.avoid_bridges_checkbox)
 
         # Ver feriados
         self.view_holidays_button = QPushButton(get_translation("view_holidays", self.current_language))
@@ -1133,6 +1175,10 @@ class MainWindow(QMainWindow):
             start_date_str = self.start_date_input.date().toString("yyyy-MM-dd")
             start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
             avoid_holidays = self.avoid_holidays_checkbox.isChecked()
+            state = self.state_combo.currentData() if hasattr(self, 'state_combo') else "Nenhum"
+            city = self.city_combo.currentText() if hasattr(self, 'city_combo') else "Nenhum"
+            avoid_bridges = self.avoid_bridges_checkbox.isChecked() if hasattr(self, 'avoid_bridges_checkbox') else True
+            timezone_str = self.timezone_combo.currentText()
             country_code = self._get_country_code()
             start_time = self.start_time_input.time().toPyTime()
             end_time = self.end_time_input.time().toPyTime()
@@ -1182,11 +1228,23 @@ class MainWindow(QMainWindow):
             self._pending_optional_emails = optional_emails
             self._pending_email_body = email_body
             self._pending_country_code = country_code
+            self._pending_state = state
+            self._pending_city = city
+            self._pending_avoid_bridges = avoid_bridges
+            self._pending_timezone = timezone_str
+
+            # Persistir estados no config
+            self.config["avoid_holidays"] = avoid_holidays
+            self.config["avoid_bridges"] = avoid_bridges
+            self.config["state"] = state
+            self.config["city"] = city
+            save_config(self.config)
 
             # Iniciar thread
             self._gen_thread = GenerateWavesThread(
                 self.scheduler, num_waves, devices_per_wave,
-                start_date, avoid_holidays, country_code
+                start_date, avoid_holidays, country_code,
+                state=state, city=city, avoid_bridges=avoid_bridges
             )
             self._gen_thread.progress.connect(self._on_progress)
             self._gen_thread.finished.connect(self._on_generation_done)
@@ -1264,7 +1322,8 @@ class MainWindow(QMainWindow):
                 self._pending_rfc, self._pending_all_day,
                 self._pending_location,
                 self._pending_required_emails, self._pending_optional_emails,
-                self._pending_email_body
+                self._pending_email_body,
+                timezone_str=self._pending_timezone
             )
 
         # Adicionar ao histórico
@@ -1345,7 +1404,9 @@ class MainWindow(QMainWindow):
         try:
             python_date = date.toPyDate()
             country_code = self._get_country_code()
-            is_holiday_date, holiday_name = is_holiday(python_date, country_code)
+            state = self.state_combo.currentData() if hasattr(self, 'state_combo') else "Nenhum"
+            city = self.city_combo.currentText() if hasattr(self, 'city_combo') else "Nenhum"
+            is_holiday_date, holiday_name = is_holiday(python_date, country_code, state, city)
 
             if is_holiday_date:
                 date_str = python_date.strftime("%d/%m/%Y")
@@ -1387,12 +1448,35 @@ class MainWindow(QMainWindow):
         except Exception as e:
             logger.error(f"Error changing country: {str(e)}")
 
+    # ── State/City Changed ─────────────────────────────────────────────────────
+    def on_state_changed(self, state_text):
+        try:
+            state_code = self.state_combo.currentData()
+            self.config["state"] = state_code
+            save_config(self.config)
+            self.check_holiday_date(self.start_date_input.date())
+            logger.info(f"State changed to: {state_code}")
+        except Exception as e:
+            logger.error(f"Error changing state: {str(e)}")
+
+    def on_city_changed(self, city_text):
+        try:
+            city_name = self.city_combo.currentText()
+            self.config["city"] = city_name
+            save_config(self.config)
+            self.check_holiday_date(self.start_date_input.date())
+            logger.info(f"City changed to: {city_name}")
+        except Exception as e:
+            logger.error(f"Error changing city: {str(e)}")
+
     # ── Show Holidays ──────────────────────────────────────────────────────────
     def show_holidays(self):
         try:
             current_year = self.start_date_input.date().year()
             country_code = self._get_country_code()
-            dialog = HolidaysViewDialog(current_year, country_code, None, self.current_language, self)
+            state = self.state_combo.currentData() if hasattr(self, 'state_combo') else "Nenhum"
+            city = self.city_combo.currentText() if hasattr(self, 'city_combo') else "Nenhum"
+            dialog = HolidaysViewDialog(current_year, country_code, state, city, self.current_language, self)
             dialog.exec_()
         except Exception as e:
             logger.error(f"Error showing holidays: {str(e)}")

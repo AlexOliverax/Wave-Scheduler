@@ -41,6 +41,9 @@ TRANSLATIONS = {
         "country": "País:",
         "language": "Idioma:",
         "avoid_holidays": "Evitar feriados e fins de semana",
+        "avoid_bridges": "Evitar emendas de feriado (pontes)",
+        "state": "Estado:",
+        "city": "Cidade:",
         "view_holidays": "📅 Ver Feriados do Ano",
         "start_time": "Hora de Início:",
         "end_time": "Hora de Fim:",
@@ -151,14 +154,7 @@ TRANSLATIONS = {
         
         # Países e feriados
         "countries": {
-            "BR": "Brasil",
-            "US": "Estados Unidos", 
-            "AR": "Argentina",
-            "CL": "Chile",
-            "PE": "Peru",
-            "CO": "Colômbia",
-            "MX": "México",
-            "CA": "Canadá"
+            "BR": "Brasil"
         },
         "languages": {
             "pt-BR": "Português (Brasil)",
@@ -214,6 +210,9 @@ TRANSLATIONS = {
         "country": "Country:",
         "language": "Language:",
         "avoid_holidays": "Avoid holidays and weekends",
+        "avoid_bridges": "Avoid bridge days (long weekends)",
+        "state": "State:",
+        "city": "City:",
         "view_holidays": "📅 View Year Holidays",
         "start_time": "Start Time:",
         "end_time": "End Time:",
@@ -323,14 +322,7 @@ TRANSLATIONS = {
 
         # Países e feriados
         "countries": {
-            "BR": "Brazil",
-            "US": "United States",
-            "AR": "Argentina", 
-            "CL": "Chile",
-            "PE": "Peru",
-            "CO": "Colombia",
-            "MX": "Mexico",
-            "CA": "Canada"
+            "BR": "Brazil"
         },
         "languages": {
             "pt-BR": "Português (Brasil)",
@@ -371,8 +363,11 @@ TRANSLATIONS = {
         "timezone_select": "🌍 Seleccionar",
         "country": "País:",
         "language": "Idioma:",
-        "avoid_holidays": "Evitar feriados y fines de semana",
-        "view_holidays": "📅 Ver Feriados del Año",
+        "avoid_holidays": "Evitar feriados e fins de semana",
+        "avoid_bridges": "Evitar puentes (fines de semana largos)",
+        "state": "Estado:",
+        "city": "Ciudad:",
+        "view_holidays": "📅 Ver Feriados do Ano",
         "start_time": "Hora de Inicio:",
         "end_time": "Hora de Fin:",
         "all_day_event": "Evento de Todo el Día:",
@@ -477,14 +472,7 @@ TRANSLATIONS = {
         
         # Países e feriados
         "countries": {
-            "BR": "Brasil",
-            "US": "Estados Unidos",
-            "AR": "Argentina",
-            "CL": "Chile", 
-            "PE": "Perú",
-            "CO": "Colombia",
-            "MX": "México",
-            "CA": "Canadá"
+            "BR": "Brasil"
         },
         "languages": {
             "pt-BR": "Português (Brasil)",
@@ -512,45 +500,9 @@ TRANSLATIONS = {
             "Independence Day": "Día de la Independencia",
             "Our Lady of Aparecida": "Nuestra Señora Aparecida",
             "All Souls' Day": "Día de los Difuntos",
-            "Republic Proclamation Day": "Día de la Proclamación de la República",
+            "Republic Proclamation Day": "Día de la Proclamação da República",
             "National Day of Zumbi and Black Awareness": "Día Nacional de Zumbi y la Conciencia Negra",
-            "Christmas Day": "Navidad",
-            # Feriados argentinos
-            "New Year's Day": "Año Nuevo",
-            "Carnival Monday": "Lunes de Carnaval",
-            "Carnival Tuesday": "Martes de Carnaval",
-            "National Day of Remembrance for Truth and Justice": "Día Nacional de la Memoria por la Verdad y la Justicia",
-            "Veteran's Day and the Fallen in the Malvinas War": "Día del Veterano y de los Caídos en la Guerra de Malvinas",
-            "Maundy Thursday": "Jueves Santo",
-            "Labor Day": "Día del Trabajador",
-            "Bridge Public Holiday": "Feriado con Fines Turísticos",
-            "May Revolution Day": "Día de la Revolución de Mayo",
-            "Pass to the Immortality of General Don Martín Miguel de Güemes": "Paso a la Inmortalidad del General Don Martín Miguel de Güemes",
-            "Pass to the Immortality of General Don Manuel Belgrano": "Paso a la Inmortalidad del General Don Manuel Belgrano",
-            "Pass to the Immortality of General Don José de San Martín": "Paso a la Inmortalidad del General Don José de San Martín",
-            "Respect for Cultural Diversity Day": "Día del Respeto a la Diversidad Cultural",
-            "National Sovereignty Day": "Día de la Soberanía Nacional",
-            "Immaculate Conception": "Día de la Inmaculada Concepción",
-            # Feriados chilenos
-            "Holy Saturday": "Sábado Santo",
-            "Navy Day": "Día de la Armada",
-            "National Day of Indigenous Peoples": "Día Nacional de los Pueblos Indígenas",
-            "Saint Peter and Saint Paul's Day": "Día de San Pedro y San Pablo",
-            "Our Lady of Mount Carmel": "Nuestra Señora del Carmen",
-            "Assumption Day": "Día de la Asunción",
-            "Army Day": "Día del Ejército",
-            "Meeting of Two Worlds' Day": "Día del Encuentro de Dos Mundos",
-            "Reformation Day": "Día de la Reforma",
-            "All Saints' Day": "Día de Todos los Santos",
-            # Feriados peruanos
-            "Easter Sunday": "Domingo de Pascua",
-            "Battle of Arica and Flag Day": "Día de la Batalla de Arica y Día de la Bandera",
-            "Peruvian Air Force Day": "Día de la Fuerza Aérea del Perú",
-            "Great Military Parade Day": "Día de la Gran Parada Militar",
-            "Battle of Junín Day": "Día de la Batalla de Junín",
-            "Rose of Lima Day": "Día de Santa Rosa de Lima",
-            "Battle of Angamos Day": "Día de la Batalla de Angamos",
-            "Battle of Ayacucho Day": "Día de la Batalla de Ayacucho"
+            "Christmas Day": "Navidad"
         }
     },
     "fr-FR": {
@@ -576,6 +528,9 @@ TRANSLATIONS = {
         "country": "Pays:",
         "language": "Langue:",
         "avoid_holidays": "Éviter les jours fériés et les week-ends",
+        "avoid_bridges": "Éviter les ponts",
+        "state": "État:",
+        "city": "Ville:",
         "view_holidays": "📅 Voir les Jours Fériés de l'Année",
         "start_time": "Heure de Début:",
         "end_time": "Heure de Fin:",
@@ -681,14 +636,7 @@ TRANSLATIONS = {
         
         # Pays et jours fériés
         "countries": {
-            "BR": "Brésil",
-            "US": "États-Unis",
-            "AR": "Argentine",
-            "CL": "Chili",
-            "PE": "Pérou",
-            "CO": "Colombie",
-            "MX": "Mexique",
-            "CA": "Canada"
+            "BR": "Brésil"
         },
         "languages": {
             "pt-BR": "Português (Brasil)",
@@ -730,6 +678,9 @@ TRANSLATIONS = {
         "country": "Land:",
         "language": "Sprache:",
         "avoid_holidays": "Feiertage und Wochenenden vermeiden",
+        "avoid_bridges": "Brückentage vermeiden",
+        "state": "Bundesland:",
+        "city": "Stadt:",
         "view_holidays": "📅 Feiertage des Jahres Anzeigen",
         "start_time": "Startzeit:",
         "end_time": "Endzeit:",
@@ -835,14 +786,7 @@ TRANSLATIONS = {
         
         # Länder und Feiertage
         "countries": {
-            "BR": "Brasilien",
-            "US": "Vereinigte Staaten",
-            "AR": "Argentinien",
-            "CL": "Chile",
-            "PE": "Peru",
-            "CO": "Kolumbien",
-            "MX": "Mexiko",
-            "CA": "Kanada"
+            "BR": "Brasilien"
         },
         "languages": {
             "pt-BR": "Português (Brasil)",
@@ -970,20 +914,22 @@ def get_brazilian_holidays(year):
     """
     return get_country_holidays_dict(year, "BR")
 
-def is_holiday(date, country_code):
+def is_holiday(date, country_code, state=None, city=None):
     """
-    Check if a date is a holiday in the specified country.
+    Check if a date is a holiday in the specified country, state, and city.
 
     Args:
         date (datetime.date): Date to check
         country_code (str): Country code
+        state (str, optional): State code
+        city (str, optional): City name
 
     Returns:
         tuple: (is_holiday: bool, holiday_name: str or None)
     """
     try:
         year = date.year
-        holidays_dict = get_country_holidays_dict(year, country_code)
+        holidays_dict = get_accumulated_holidays_dict(year, country_code, state, city)
 
         if date in holidays_dict:
             return True, holidays_dict[date]
@@ -1061,23 +1007,19 @@ def get_supported_countries():
         dict: Dictionary with country codes and names in Portuguese (default)
     """
     return {
-        "BR": "Brasil",
-        "US": "Estados Unidos",
-        "AR": "Argentina",
-        "CL": "Chile",
-        "PE": "Peru",
-        "CO": "Colômbia",
-        "MX": "México",
-        "CA": "Canadá"
+        "BR": "Brasil"
     }
 
-def is_business_day(date, country_code="BR"):
+def is_business_day(date, country_code="BR", state=None, city=None, avoid_bridges=False):
     """
-    Check if a date is a business day (not weekend or holiday).
+    Check if a date is a business day (not weekend, holiday, or bridge day).
 
     Args:
         date (datetime.date): Date to check
         country_code (str): Country code to check holidays for (default: 'BR')
+        state (str, optional): State code
+        city (str, optional): City name
+        avoid_bridges (bool): Whether to skip bridge days (default: False)
 
     Returns:
         bool: True if it's a business day
@@ -1087,26 +1029,36 @@ def is_business_day(date, country_code="BR"):
         if date.weekday() >= 5:  # Saturday = 5, Sunday = 6
             return False
 
-        # Check holiday for the configured country
-        holidays_dict = get_country_holidays_dict(date.year, country_code)
-        return date not in holidays_dict
+        # Check holiday
+        is_hol, _ = is_holiday(date, country_code, state, city)
+        if is_hol:
+            return False
+
+        # Check bridge day (emenda de feriado)
+        if avoid_bridges and is_bridge_day(date, country_code, state, city):
+            return False
+
+        return True
     except Exception as e:
         logger.error(f"Error checking business day: {str(e)}")
         return True  # Default to business day if error
 
-def get_next_business_day(date, country_code="BR"):
+def get_next_business_day(date, country_code="BR", state=None, city=None, avoid_bridges=False):
     """
     Get the next business day after the given date.
 
     Args:
         date (datetime.date): Starting date
         country_code (str): Country code to check holidays for (default: 'BR')
+        state (str, optional): State code
+        city (str, optional): City name
+        avoid_bridges (bool): Whether to skip bridge days (default: False)
 
     Returns:
         datetime.date: Next business day
     """
     next_date = date + timedelta(days=1)
-    while not is_business_day(next_date, country_code):
+    while not is_business_day(next_date, country_code, state, city, avoid_bridges):
         next_date += timedelta(days=1)
     return next_date
 
@@ -1164,3 +1116,167 @@ def translate_holiday_name(holiday_name, language="pt-BR"):
     except Exception as e:
         logger.error(f"Error translating holiday name '{holiday_name}': {str(e)}")
         return holiday_name
+
+
+def get_city_holidays_dict(year, city):
+    """
+    Retorna feriados municipais para as principais cidades do Brasil.
+    """
+    city_holidays = {}
+    if not city:
+        return city_holidays
+        
+    # Primeiro, obter Sexta-feira Santa nacional para calcular Corpus Christi e Carnaval
+    from holidays import Brazil
+    br_holidays = Brazil(years=year)
+    good_friday = None
+    for dt, name in br_holidays.items():
+        if "Sexta-feira Santa" in name or "Good Friday" in name:
+            good_friday = dt
+            break
+            
+    if good_friday:
+        easter = good_friday + timedelta(days=2)
+        carnival_mon = easter - timedelta(days=48)
+        carnival_tue = easter - timedelta(days=47)
+        corpus_christi = easter + timedelta(days=60)
+    else:
+        corpus_christi = None
+        carnival_mon = None
+        carnival_tue = None
+
+    city_clean = city.strip().lower()
+    
+    # São Paulo
+    if "são paulo" in city_clean or "sp" in city_clean:
+        city_holidays[datetime(year, 1, 25).date()] = "Aniversário de São Paulo"
+        if corpus_christi:
+            city_holidays[corpus_christi] = "Corpus Christi"
+        if carnival_mon:
+            city_holidays[carnival_mon] = "Carnaval (Segunda-feira)"
+        if carnival_tue:
+            city_holidays[carnival_tue] = "Carnaval (Terça-feira)"
+            
+    # Rio de Janeiro
+    elif "rio de janeiro" in city_clean or "rj" in city_clean:
+        city_holidays[datetime(year, 1, 20).date()] = "Dia de São Sebastião"
+        city_holidays[datetime(year, 4, 23).date()] = "Dia de São Jorge"
+        if corpus_christi:
+            city_holidays[corpus_christi] = "Corpus Christi"
+        if carnival_mon:
+            city_holidays[carnival_mon] = "Carnaval (Segunda-feira)"
+        if carnival_tue:
+            city_holidays[carnival_tue] = "Carnaval (Terça-feira)"
+            
+    # Belo Horizonte
+    elif "belo horizonte" in city_clean or "bh" in city_clean:
+        city_holidays[datetime(year, 8, 15).date()] = "Assunção de Nossa Senhora"
+        city_holidays[datetime(year, 12, 8).date()] = "Imaculada Conceição"
+        if corpus_christi:
+            city_holidays[corpus_christi] = "Corpus Christi"
+            
+    # Curitiba
+    elif "curitiba" in city_clean:
+        city_holidays[datetime(year, 9, 8).date()] = "Nossa Senhora da Luz dos Pinhais"
+        if corpus_christi:
+            city_holidays[corpus_christi] = "Corpus Christi"
+            
+    # Porto Alegre
+    elif "porto alegre" in city_clean or "poa" in city_clean:
+        city_holidays[datetime(year, 2, 2).date()] = "Nossa Senhora dos Navegantes"
+        if corpus_christi:
+            city_holidays[corpus_christi] = "Corpus Christi"
+            
+    # Salvador
+    elif "salvador" in city_clean:
+        city_holidays[datetime(year, 12, 8).date()] = "Nossa Senhora da Conceição da Praia"
+        if corpus_christi:
+            city_holidays[corpus_christi] = "Corpus Christi"
+            
+    # Recife
+    elif "recife" in city_clean:
+        city_holidays[datetime(year, 7, 16).date()] = "Nossa Senhora do Carmo"
+        city_holidays[datetime(year, 12, 8).date()] = "Nossa Senhora da Conceição"
+        if corpus_christi:
+            city_holidays[corpus_christi] = "Corpus Christi"
+            
+    # Fortaleza
+    elif "fortaleza" in city_clean:
+        city_holidays[datetime(year, 8, 15).date()] = "Nossa Senhora da Assunção"
+        if corpus_christi:
+            city_holidays[corpus_christi] = "Corpus Christi"
+
+    # Caso geral para outras cidades do Brasil, Corpus Christi é adicionado por padrão
+    else:
+        if corpus_christi:
+            city_holidays[corpus_christi] = "Corpus Christi"
+            
+    return city_holidays
+
+
+def get_accumulated_holidays_dict(year, country_code, state=None, city=None):
+    """
+    Retorna a união de feriados Nacionais, Estaduais e Municipais.
+    """
+    holidays_dict = {}
+    
+    # 1. Feriados Nacionais e Estaduais (via biblioteca holidays)
+    try:
+        country_map = {
+            "BR": holidays.Brazil,
+            "US": holidays.UnitedStates,
+            "AR": holidays.Argentina,
+            "CL": holidays.Chile,
+            "PE": holidays.Peru,
+            "CO": holidays.Colombia,
+            "MX": holidays.Mexico,
+            "CA": holidays.Canada,
+        }
+        cls = country_map.get(country_code)
+        if cls is not None:
+            # Se for Brasil e tiver estado especificado
+            if country_code == "BR" and state and state != "Nenhum":
+                h = cls(years=year, subdiv=state)
+            else:
+                h = cls(years=year)
+            holidays_dict.update(h)
+    except Exception as e:
+        logger.error(f"Error getting national/state holidays: {str(e)}")
+        
+    # 2. Feriados Municipais (para o Brasil)
+    if country_code == "BR" and city and city != "Nenhum":
+        try:
+            city_h = get_city_holidays_dict(year, city)
+            holidays_dict.update(city_h)
+        except Exception as e:
+            logger.error(f"Error getting municipal holidays: {str(e)}")
+            
+    return holidays_dict
+
+
+def is_bridge_day(date, country_code="BR", state=None, city=None):
+    """
+    Check if a date is a bridge day (emenda de feriado).
+    If Thursday is a holiday, Friday is a bridge day.
+    If Tuesday is a holiday, Monday is a bridge day.
+    """
+    if country_code != "BR":
+        return False
+        
+    weekday = date.weekday()
+    
+    # Sexta-feira (4): verifica se quinta-feira (3) foi feriado
+    if weekday == 4:
+        thursday = date - timedelta(days=1)
+        is_hol, _ = is_holiday(thursday, country_code, state, city)
+        if is_hol:
+            return True
+            
+    # Segunda-feira (0): verifica se terça-feira (1) é feriado
+    if weekday == 0:
+        tuesday = date + timedelta(days=1)
+        is_hol, _ = is_holiday(tuesday, country_code, state, city)
+        if is_hol:
+            return True
+            
+    return False

@@ -15,6 +15,29 @@ from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
+
+def adjust_to_local_tz(dt_naive, target_tz_str):
+    """
+    Localiza um datetime ingênuo (na timezone do target_tz_str)
+    e o converte para a timezone local do sistema operacional.
+    """
+    import pytz
+    
+    # 1. Obter o fuso horário de destino (configurado na UI)
+    try:
+        target_tz = pytz.timezone(target_tz_str)
+    except Exception:
+        target_tz = pytz.UTC
+        
+    # 2. Localizar o datetime ingênuo na timezone de destino
+    dt_aware = target_tz.localize(dt_naive)
+    
+    # 3. Converter para a timezone local do sistema
+    local_dt = dt_aware.astimezone()
+    
+    # Retorna o datetime como ingênuo na timezone local do sistema
+    return local_dt.replace(tzinfo=None)
+
 # ── Constantes COM do Outlook ──────────────────────────────────────────────────
 _OL_APPOINTMENT_ITEM = 1   # olAppointmentItem (0 = olMailItem — erro comum!)
 _OL_MEETING          = 1
@@ -69,6 +92,7 @@ def create_outlook_events(
     required_participants=None,
     optional_participants=None,
     email_body=None,
+    timezone_str="America/Sao_Paulo",
 ) -> bool:
     """
     Cria eventos no Outlook para cada wave.
@@ -85,12 +109,14 @@ def create_outlook_events(
         return _create_via_com(
             wave_labels, start_time, end_time, rfc, all_day,
             location, required_participants, optional_participants, email_body,
+            timezone_str=timezone_str,
         )
     else:
         logger.info("Outlook COM indisponível (Novo Outlook?) — usando .ics.")
         return _create_via_ics(
             wave_labels, start_time, end_time, rfc, all_day,
             location, required_participants, optional_participants, email_body,
+            timezone_str=timezone_str,
         )
 
 
@@ -101,6 +127,7 @@ def create_outlook_events(
 def _create_via_com(
     wave_labels, start_time, end_time, rfc, all_day,
     location, required_participants, optional_participants, email_body,
+    timezone_str="America/Sao_Paulo",
 ) -> bool:
     try:
         import win32com.client
@@ -136,8 +163,15 @@ def _create_via_com(
                 appt.AllDayEvent = True
                 appt.Start = wave_date.strftime("%m/%d/%Y")
             else:
-                appt.Start = _to_com_datetime(datetime.combine(wave_date.date(), start_time))
-                appt.End   = _to_com_datetime(datetime.combine(wave_date.date(), end_time))
+                start_dt_naive = datetime.combine(wave_date.date(), start_time)
+                end_dt_naive = datetime.combine(wave_date.date(), end_time)
+                
+                # Ajusta para a timezone local do sistema
+                start_dt_local = adjust_to_local_tz(start_dt_naive, timezone_str)
+                end_dt_local = adjust_to_local_tz(end_dt_naive, timezone_str)
+                
+                appt.Start = _to_com_datetime(start_dt_local)
+                appt.End   = _to_com_datetime(end_dt_local)
 
             if has_participants:
                 appt.MeetingStatus = _OL_MEETING
@@ -192,6 +226,7 @@ def _ics_escape(text: str) -> str:
 def _create_via_ics(
     wave_labels, start_time, end_time, rfc, all_day,
     location, required_participants, optional_participants, email_body,
+    timezone_str="America/Sao_Paulo",
 ) -> bool:
     """
     Gera um arquivo .ics com todos os eventos e abre no Outlook.

@@ -5,7 +5,7 @@ import logging
 from datetime import datetime, timedelta
 import re
 from collections import defaultdict
-from app.utils import get_country_holidays_dict
+from app.utils import get_accumulated_holidays_dict, is_bridge_day
 
 logger = logging.getLogger(__name__)
 
@@ -95,15 +95,18 @@ class WavesScheduler:
         """
         return max(1, int(np.ceil(total_devices / devices_per_wave)))
     
-    def generate_wave_labels(self, start_date, num_waves, avoid_holidays=True, country_code="BR"):
+    def generate_wave_labels(self, start_date, num_waves, avoid_holidays=True, country_code="BR", state=None, city=None, avoid_bridges=False):
         """
-        Gera rótulos de waves baseados na data inicial, pulando finais de semana e feriados.
+        Gera rótulos de waves baseados na data inicial, pulando finais de semana, feriados (nacionais/estaduais/municipais) e pontes.
 
         Args:
             start_date (datetime): Data inicial para a primeira wave
             num_waves (int): Número de waves
-            avoid_holidays (bool): Se True, pula feriados nacionais do país configurado
-            country_code (str): Código do país para verificação de feriados
+            avoid_holidays (bool): Se True, pula feriados
+            country_code (str): Código do país
+            state (str, optional): Estado para feriados estaduais
+            city (str, optional): Cidade para feriados municipais
+            avoid_bridges (bool): Se True, pula emendas de feriado (pontes)
 
         Returns:
             list: Lista de rótulos de waves
@@ -116,15 +119,16 @@ class WavesScheduler:
         holidays_set = set()
         if avoid_holidays:
             for yr in {start_date.year, start_date.year + 1}:
-                holidays_set.update(get_country_holidays_dict(yr, country_code).keys())
+                holidays_set.update(get_accumulated_holidays_dict(yr, country_code, state, city).keys())
 
         while wave_count < num_waves:
             current_day = current_date.date() if hasattr(current_date, 'date') else current_date
             weekday = current_date.weekday()
             is_weekend = weekday >= 5
             is_holiday = avoid_holidays and current_day in holidays_set
+            is_bridge = avoid_bridges and is_bridge_day(current_day, country_code, state, city)
 
-            if not is_weekend and not is_holiday:
+            if not is_weekend and not is_holiday and not is_bridge:
                 wave_label = f"Wave {wave_count+1} - {current_date.strftime('%d/%m/%Y')}"
                 wave_labels.append(wave_label)
                 wave_count += 1
