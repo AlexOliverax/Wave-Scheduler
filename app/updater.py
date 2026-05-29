@@ -31,6 +31,23 @@ GITHUB_REPO  = "Wave-Scheduler"
 GITHUB_API   = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/releases/latest"
 # ─────────────────────────────────────────────────────────────────────────────
 
+# Configure global opener for urllib to bypass SSL check and use browser User-Agent
+# This is crucial for corporate networks like DHL (behind Zscaler or other firewalls)
+try:
+    import ssl
+    ssl_ctx = ssl.create_default_context()
+    ssl_ctx.check_hostname = False
+    ssl_ctx.verify_mode = ssl.CERT_NONE
+    
+    opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl_ctx))
+    opener.addheaders = [
+        ('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'),
+        ('Accept', 'application/vnd.github+json')
+    ]
+    urllib.request.install_opener(opener)
+except Exception as e:
+    logger.warning(f"Failed to install global SSL/User-Agent bypass opener: {e}")
+
 
 def _get_version_file_path() -> str:
     """Retorna o caminho do arquivo VERSION (suporta exe compilado e dev)."""
@@ -74,23 +91,8 @@ def check_for_update(timeout: int = 15) -> Optional[Dict]:
         dict com 'tag_name', 'name', 'body', 'html_url', 'download_url' se houver update.
         None se estiver na versão mais recente ou se não conseguir verificar.
     """
-    import ssl
-    # Redes corporativas (ex: DHL) usam inspecção SSL que substitui certificados.
-    # O Python não reconhece o cert da empresa e rejeita a conexão.
-    # Para o updater (somente leitura da API GitHub), desabilitar a verificação é seguro.
-    ssl_ctx = ssl.create_default_context()
-    ssl_ctx.check_hostname = False
-    ssl_ctx.verify_mode   = ssl.CERT_NONE
-
     try:
-        req = urllib.request.Request(
-            GITHUB_API,
-            headers={
-                "Accept": "application/vnd.github+json",
-                "User-Agent": f"WavesScheduler/{get_current_version()}",
-            }
-        )
-        with urllib.request.urlopen(req, timeout=timeout, context=ssl_ctx) as resp:
+        with urllib.request.urlopen(GITHUB_API, timeout=timeout) as resp:
             data = json.loads(resp.read().decode("utf-8"))
 
         latest_tag = data.get("tag_name", "0.0.0")

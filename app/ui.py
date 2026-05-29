@@ -21,7 +21,7 @@ from app.utils import (save_config, get_timezone_list, get_accumulated_holidays_
 from app.outlook import create_outlook_events, is_outlook_available
 from app.dialogs import WavePreviewDialog, HistoryDialog
 from app.history import add_entry
-from app.updater import check_for_update_async, download_and_install, get_current_version
+from app.updater import check_for_update, download_and_install, get_current_version
 
 logger = logging.getLogger(__name__)
 
@@ -247,6 +247,38 @@ QFrame[frameShape="4"] { /* HLine */
     border: none;
 }
 """
+
+
+class UpdateCheckThread(QThread):
+    """Thread segura para verificar atualizações no GitHub."""
+    finished = pyqtSignal(object)  # Emite update_info (dict ou None)
+
+    def run(self):
+        try:
+            from app.updater import check_for_update
+            result = check_for_update()
+            self.finished.emit(result)
+        except Exception as e:
+            logger.error(f"UpdateCheckThread: erro ao verificar update — {e}")
+            self.finished.emit(None)
+
+
+class DownloadInstallThread(QThread):
+    """Thread segura para baixar e rodar o instalador da atualização."""
+    finished = pyqtSignal(bool)  # Emite sucesso (True/False)
+
+    def __init__(self, download_url):
+        super().__init__()
+        self.download_url = download_url
+
+    def run(self):
+        try:
+            from app.updater import download_and_install
+            ok = download_and_install(self.download_url)
+            self.finished.emit(ok)
+        except Exception as e:
+            logger.error(f"DownloadInstallThread: erro ao baixar/instalar — {e}")
+            self.finished.emit(False)
 
 
 class GenerateWavesThread(QThread):
@@ -955,11 +987,10 @@ class MainWindow(QMainWindow):
         self._update_guard.timeout.connect(self._restore_update_btn)
         self._update_guard.start(15000)
 
-        def _done(info):
-            # Callback rodando na thread — usar QTimer para voltar à UI thread
-            QTimer.singleShot(0, lambda: self._on_update_check_done(info, silent=silent))
-
-        check_for_update_async(_done)
+        # Iniciar thread do Qt segura para verificar atualizações
+        self._update_thread = UpdateCheckThread()
+        self._update_thread.finished.connect(lambda info: self._on_update_check_done(info, silent=silent))
+        self._update_thread.start()
 
     def _restore_update_btn(self):
         """Restaura o botão de update ao estado original (chamado pelo guard timer ou pelo callback)."""
@@ -977,7 +1008,7 @@ class MainWindow(QMainWindow):
         self._restore_update_btn()
 
         if update_info is None:
-            # Sem update
+            # Sem update ou erro na verificação
             if not silent:
                 self.statusBar().showMessage("✅ " + get_translation("up_to_date", lang))
                 QMessageBox.information(
@@ -1029,30 +1060,27 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("⬇️ " + get_translation("downloading_update", lang))
         self.update_btn.setEnabled(False)
 
-        def _download_done():
-            ok = download_and_install(download_url)
-            from PyQt5.QtCore import QTimer
-            if ok:
-                def _on_success():
-                    QMessageBox.information(
-                        self,
-                        get_translation("success", lang),
-                        get_translation("update_installing", lang)
-                    )
-                    self.close()
-                QTimer.singleShot(0, _on_success)
-            else:
-                def _on_failure():
-                    self.update_btn.setEnabled(True)
-                    QMessageBox.critical(
-                        self,
-                        get_translation("error", lang),
-                        get_translation("update_download_error", lang)
-                    )
-                QTimer.singleShot(0, _on_failure)
+        # Iniciar thread do Qt segura para download e instalação
+        self._download_thread = DownloadInstallThread(download_url)
+        self._download_thread.finished.connect(self._on_download_finished)
+        self._download_thread.start()
 
-        import threading
-        threading.Thread(target=_download_done, daemon=True, name="updater-download").start()
+    def _on_download_finished(self, ok):
+        lang = self.current_language
+        if ok:
+            QMessageBox.information(
+                self,
+                get_translation("success", lang),
+                get_translation("update_installing", lang)
+            )
+            self.close()
+        else:
+            self.update_btn.setEnabled(True)
+            QMessageBox.critical(
+                self,
+                get_translation("error", lang),
+                get_translation("update_download_error", lang)
+            )
 
     def show_history(self):
         """Abre o diálogo de histórico de schedules."""
