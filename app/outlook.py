@@ -148,7 +148,14 @@ def _create_via_com(
     for i, wave_label in enumerate(wave_labels, 1):
         try:
             parts = wave_label.split(" - ")
-            wave_date = datetime.strptime(parts[1].strip(), "%d/%m/%Y")
+            date_part = parts[1].strip()
+            if " a " in date_part:
+                start_str, end_str = date_part.split(" a ")
+                wave_date = datetime.strptime(start_str.strip(), "%d/%m/%Y")
+                wave_end_date = datetime.strptime(end_str.strip(), "%d/%m/%Y")
+            else:
+                wave_date = datetime.strptime(date_part, "%d/%m/%Y")
+                wave_end_date = wave_date
 
             appt = outlook.CreateItem(_OL_APPOINTMENT_ITEM)
             appt.Subject = f"Wave {i} - {rfc}" if rfc else f"Wave {i}"
@@ -162,9 +169,11 @@ def _create_via_com(
             if all_day:
                 appt.AllDayEvent = True
                 appt.Start = wave_date.strftime("%m/%d/%Y")
+                from datetime import timedelta
+                appt.End = (wave_end_date + timedelta(days=1)).strftime("%m/%d/%Y")
             else:
                 start_dt_naive = datetime.combine(wave_date.date(), start_time)
-                end_dt_naive = datetime.combine(wave_date.date(), end_time)
+                end_dt_naive = datetime.combine(wave_end_date.date(), end_time)
                 
                 # Ajusta para a timezone local do sistema
                 start_dt_local = adjust_to_local_tz(start_dt_naive, timezone_str)
@@ -243,7 +252,14 @@ def _create_via_ics(
     for i, wave_label in enumerate(wave_labels, 1):
         try:
             parts = wave_label.split(" - ")
-            wave_date = datetime.strptime(parts[1].strip(), "%d/%m/%Y")
+            date_part = parts[1].strip()
+            if " a " in date_part:
+                start_str, end_str = date_part.split(" a ")
+                wave_date = datetime.strptime(start_str.strip(), "%d/%m/%Y")
+                wave_end_date = datetime.strptime(end_str.strip(), "%d/%m/%Y")
+            else:
+                wave_date = datetime.strptime(date_part, "%d/%m/%Y")
+                wave_end_date = wave_date
 
             uid = f"{uuid4()}@waves-scheduler"
             subject = _ics_escape(f"Wave {i} - {rfc}" if rfc else f"Wave {i}")
@@ -259,12 +275,13 @@ def _create_via_ics(
             lines.append(f"LOCATION:{loc}")
             lines.append(f"DESCRIPTION:{body}")
 
+            from datetime import timedelta
             if all_day:
                 lines.append(f"DTSTART;VALUE=DATE:{_ics_datetime(wave_date, all_day=True)}")
-                lines.append(f"DTEND;VALUE=DATE:{_ics_datetime(wave_date, all_day=True)}")
+                lines.append(f"DTEND;VALUE=DATE:{_ics_datetime(wave_end_date + timedelta(days=1), all_day=True)}")
             else:
                 start_dt = datetime.combine(wave_date.date(), start_time)
-                end_dt   = datetime.combine(wave_date.date(), end_time)
+                end_dt   = datetime.combine(wave_end_date.date(), end_time)
                 lines.append(f"DTSTART:{_ics_datetime(start_dt)}")
                 lines.append(f"DTEND:{_ics_datetime(end_dt)}")
 

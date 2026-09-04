@@ -85,7 +85,7 @@ class WavePreviewDialog(QDialog):
             try:
                 date_str = label.split(" - ")[1] if " - " in label else ""
                 if " a " in date_str:
-                    weekday = "Semanal"
+                    weekday = f"{get_translation('monday', self.language)} a {get_translation('friday', self.language)}"
                 else:
                     dt = datetime.strptime(date_str, "%d/%m/%Y") if date_str else None
                     weekday_key = self.WEEKDAY_KEYS[dt.weekday()] if dt else ""

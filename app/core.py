@@ -121,9 +121,16 @@ class WavesScheduler:
                 holidays_set.update(get_accumulated_holidays_dict(yr, country_code, state, city).keys())
 
         if frequency == "weekly":
+            # Garantir alinhamento estrito para começar na Segunda-feira
+            weekday = current_date.weekday()
+            if weekday in (5, 6):
+                current_date = current_date + timedelta(days=(7 - weekday))
+            elif weekday != 0:
+                current_date = current_date - timedelta(days=weekday)
+
             for wave_count in range(num_waves):
                 week_start = current_date
-                week_end = week_start + timedelta(days=4)  # Janela de Segunda a Sexta
+                week_end = week_start + timedelta(days=4)  # Segunda a Sexta estritamente (sem sábado/domingo)
                 wave_label = f"Wave {wave_count+1} - {week_start.strftime('%d/%m/%Y')} a {week_end.strftime('%d/%m/%Y')}"
                 wave_labels.append(wave_label)
                 current_date += timedelta(days=7)
@@ -253,19 +260,27 @@ class WavesScheduler:
                 device_dicts = []
 
                 if frequency == "weekly" and start_date:
-                    week_start_date = start_date + timedelta(days=i * 7)
+                    weekday = start_date.weekday()
+                    if weekday in (5, 6):
+                        start_monday = start_date + timedelta(days=(7 - weekday))
+                    elif weekday != 0:
+                        start_monday = start_date - timedelta(days=weekday)
+                    else:
+                        start_monday = start_date
+
+                    week_start_date = start_monday + timedelta(days=i * 7)
                     active_days = []
-                    for d_offset in range(7):
+                    # Estritamente de Segunda (0) a Sexta (4) — Sábados e Domingos NUNCA entram
+                    for d_offset in range(5):
                         day_dt = week_start_date + timedelta(days=d_offset)
                         day_date = day_dt.date() if hasattr(day_dt, 'date') else day_dt
-                        weekday = day_dt.weekday()
-                        is_wnd = weekday >= 5
                         is_hol = avoid_holidays and day_date in holidays_set
                         is_brg = avoid_bridges and is_bridge_day(day_date, country_code, state, city)
-                        if not is_wnd and not is_hol and not is_brg:
+                        if not is_hol and not is_brg:
                             active_days.append(day_dt)
 
                     if not active_days:
+                        # Fallback estrito: Segunda a Sexta
                         active_days = [week_start_date + timedelta(days=d) for d in range(5)]
 
                     for dev_idx, idx in enumerate(wave_devices):
