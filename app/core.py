@@ -95,6 +95,55 @@ class WavesScheduler:
         """
         return max(1, int(np.ceil(total_devices / devices_per_wave)))
     
+    def _get_weekly_active_days(self, start_date, num_waves, avoid_holidays=True, country_code="BR", state=None, city=None, avoid_bridges=False):
+        """
+        Calcula os dias úteis ativos (Segunda a Sexta) para cada wave semanal,
+        respeitando estritamente a data inicial (não agendando datas anteriores à data de início),
+        feriados (nacionais, estaduais e municipais) e pontes.
+
+        Returns:
+            list of list of datetime: Lista contendo para cada wave a lista de dias úteis ativos.
+        """
+        holidays_set = set()
+        if avoid_holidays:
+            for yr in {start_date.year, start_date.year + 1, start_date.year + 2}:
+                holidays_set.update(get_accumulated_holidays_dict(yr, country_code, state, city).keys())
+
+        current_user_start = start_date.date() if hasattr(start_date, 'date') else start_date
+        weekday = start_date.weekday()
+        if weekday in (5, 6):
+            week_monday = start_date + timedelta(days=(7 - weekday))
+        else:
+            week_monday = start_date - timedelta(days=weekday)
+
+        waves_active_days = []
+        w = 0
+        while len(waves_active_days) < num_waves:
+            week_start_monday = week_monday + timedelta(days=w * 7)
+            w += 1
+
+            week_active_days = []
+            for d_offset in range(5):  # Mon (0) to Fri (4) strictly
+                day_dt = week_start_monday + timedelta(days=d_offset)
+                day_date = day_dt.date() if hasattr(day_dt, 'date') else day_dt
+
+                # Não permite dias anteriores à data de início escolhida pelo usuário
+                if day_date < current_user_start:
+                    continue
+
+                is_hol = avoid_holidays and day_date in holidays_set
+                is_brg = avoid_bridges and is_bridge_day(day_date, country_code, state, city)
+
+                if not is_hol and not is_brg:
+                    week_active_days.append(day_dt)
+
+            if not week_active_days:
+                continue
+
+            waves_active_days.append(week_active_days)
+
+        return waves_active_days
+
     def generate_wave_labels(self, start_date, num_waves, avoid_holidays=True, country_code="BR", state=None, city=None, avoid_bridges=False, frequency="daily"):
         """
         Gera rótulos de waves baseados na data inicial e na frequência (diária ou semanal).
@@ -113,28 +162,31 @@ class WavesScheduler:
             list: Lista de rótulos de waves
         """
         wave_labels = []
-        current_date = start_date
-
-        holidays_set = set()
-        if avoid_holidays:
-            for yr in {start_date.year, start_date.year + 1, start_date.year + 2}:
-                holidays_set.update(get_accumulated_holidays_dict(yr, country_code, state, city).keys())
 
         if frequency == "weekly":
-            # Garantir alinhamento estrito para começar na Segunda-feira
-            weekday = current_date.weekday()
-            if weekday in (5, 6):
-                current_date = current_date + timedelta(days=(7 - weekday))
-            elif weekday != 0:
-                current_date = current_date - timedelta(days=weekday)
-
-            for wave_count in range(num_waves):
-                week_start = current_date
-                week_end = week_start + timedelta(days=4)  # Segunda a Sexta estritamente (sem sábado/domingo)
-                wave_label = f"Wave {wave_count+1} - {week_start.strftime('%d/%m/%Y')} a {week_end.strftime('%d/%m/%Y')}"
+            waves_active_days = self._get_weekly_active_days(
+                start_date, num_waves,
+                avoid_holidays=avoid_holidays,
+                country_code=country_code,
+                state=state,
+                city=city,
+                avoid_bridges=avoid_bridges
+            )
+            for wave_count, w_days in enumerate(waves_active_days):
+                first_day = w_days[0]
+                last_day = w_days[-1]
+                if first_day.date() == last_day.date():
+                    wave_label = f"Wave {wave_count+1} - {first_day.strftime('%d/%m/%Y')}"
+                else:
+                    wave_label = f"Wave {wave_count+1} - {first_day.strftime('%d/%m/%Y')} a {last_day.strftime('%d/%m/%Y')}"
                 wave_labels.append(wave_label)
-                current_date += timedelta(days=7)
         else:
+            holidays_set = set()
+            if avoid_holidays:
+                for yr in {start_date.year, start_date.year + 1, start_date.year + 2}:
+                    holidays_set.update(get_accumulated_holidays_dict(yr, country_code, state, city).keys())
+
+            current_date = start_date
             wave_count = 0
             while wave_count < num_waves:
                 current_day = current_date.date() if hasattr(current_date, 'date') else current_date
@@ -260,28 +312,19 @@ class WavesScheduler:
                 device_dicts = []
 
                 if frequency == "weekly" and start_date:
-                    weekday = start_date.weekday()
-                    if weekday in (5, 6):
-                        start_monday = start_date + timedelta(days=(7 - weekday))
-                    elif weekday != 0:
-                        start_monday = start_date - timedelta(days=weekday)
-                    else:
-                        start_monday = start_date
+                    if not hasattr(self, '_weekly_active_cache') or len(self._weekly_active_cache) < num_waves:
+                        self._weekly_active_cache = self._get_weekly_active_days(
+                            start_date, num_waves,
+                            avoid_holidays=avoid_holidays,
+                            country_code=country_code,
+                            state=state,
+                            city=city,
+                            avoid_bridges=avoid_bridges
+                        )
 
-                    week_start_date = start_monday + timedelta(days=i * 7)
-                    active_days = []
-                    # Estritamente de Segunda (0) a Sexta (4) — Sábados e Domingos NUNCA entram
-                    for d_offset in range(5):
-                        day_dt = week_start_date + timedelta(days=d_offset)
-                        day_date = day_dt.date() if hasattr(day_dt, 'date') else day_dt
-                        is_hol = avoid_holidays and day_date in holidays_set
-                        is_brg = avoid_bridges and is_bridge_day(day_date, country_code, state, city)
-                        if not is_hol and not is_brg:
-                            active_days.append(day_dt)
-
+                    active_days = self._weekly_active_cache[i] if i < len(self._weekly_active_cache) else []
                     if not active_days:
-                        # Fallback estrito: Segunda a Sexta
-                        active_days = [week_start_date + timedelta(days=d) for d in range(5)]
+                        active_days = [start_date + timedelta(days=d) for d in range(5)]
 
                     for dev_idx, idx in enumerate(wave_devices):
                         d_dict = self.data.iloc[idx].to_dict()
