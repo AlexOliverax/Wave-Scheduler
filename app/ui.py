@@ -286,7 +286,7 @@ class GenerateWavesThread(QThread):
     progress = pyqtSignal(int, str)   # (percent, step_label)
     finished = pyqtSignal(object, object, object)  # (wave_distribution, wave_labels, error)
 
-    def __init__(self, scheduler, num_waves, devices_per_wave, start_date, avoid_holidays, country_code, state=None, city=None, avoid_bridges=False):
+    def __init__(self, scheduler, num_waves, devices_per_wave, start_date, avoid_holidays, country_code, state=None, city=None, avoid_bridges=False, frequency="daily"):
         super().__init__()
         self.scheduler = scheduler
         self.num_waves = num_waves
@@ -297,6 +297,7 @@ class GenerateWavesThread(QThread):
         self.state = state
         self.city = city
         self.avoid_bridges = avoid_bridges
+        self.frequency = frequency
 
     def run(self):
         try:
@@ -313,12 +314,20 @@ class GenerateWavesThread(QThread):
                 country_code=self.country_code,
                 state=self.state,
                 city=self.city,
-                avoid_bridges=self.avoid_bridges
+                avoid_bridges=self.avoid_bridges,
+                frequency=self.frequency
             )
 
             self.progress.emit(60, "step_devices")
             wave_distribution = self.scheduler.distribute_devices(
-                self.num_waves, self.devices_per_wave
+                self.num_waves, self.devices_per_wave,
+                start_date=self.start_date,
+                avoid_holidays=self.avoid_holidays,
+                country_code=self.country_code,
+                state=self.state,
+                city=self.city,
+                avoid_bridges=self.avoid_bridges,
+                frequency=self.frequency
             )
 
             self.progress.emit(90, "step_excel")
@@ -706,6 +715,17 @@ class MainWindow(QMainWindow):
         rfc_widget = QWidget()
         rfc_widget.setLayout(rfc_layout)
         config_layout.addRow(get_translation("rfc", self.current_language), rfc_widget)
+
+        # Frequência da Wave (Diária / Semanal)
+        self.frequency_combo = QComboBox()
+        self.frequency_combo.addItem(get_translation("frequency_daily", self.current_language), "daily")
+        self.frequency_combo.addItem(get_translation("frequency_weekly", self.current_language), "weekly")
+        default_freq = self.config.get("frequency", "daily")
+        freq_idx = self.frequency_combo.findData(default_freq)
+        if freq_idx >= 0:
+            self.frequency_combo.setCurrentIndex(freq_idx)
+        self.frequency_combo.currentTextChanged.connect(self.update_recommendations)
+        config_layout.addRow(get_translation("wave_frequency", self.current_language), self.frequency_combo)
 
         # Bandwidth
         self.bandwidth_input = QDoubleSpinBox()
@@ -1171,10 +1191,16 @@ class MainWindow(QMainWindow):
                     "color: #f87171; font-weight: bold;"
                 )
 
+            frequency = self.frequency_combo.currentData() if hasattr(self, 'frequency_combo') and self.frequency_combo.currentData() else "daily"
             devices_per_wave = self.scheduler.calculate_devices_per_wave(current_bandwidth, mb_per_device)
-            self.devices_per_wave_label.setText(f"{devices_per_wave:,}")
+            effective_cap = devices_per_wave * 5 if frequency == "weekly" else devices_per_wave
 
-            ideal_waves = self.scheduler.calculate_ideal_waves(self.scheduler.total_devices, devices_per_wave)
+            if frequency == "weekly":
+                self.devices_per_wave_label.setText(f"{effective_cap:,} ({devices_per_wave:,}/dia)")
+            else:
+                self.devices_per_wave_label.setText(f"{devices_per_wave:,}")
+
+            ideal_waves = self.scheduler.calculate_ideal_waves(self.scheduler.total_devices, effective_cap)
             self.ideal_waves_label.setText(f"{ideal_waves}")
 
             current_waves = self.waves_input.value()
@@ -1260,6 +1286,8 @@ class MainWindow(QMainWindow):
             self._pending_timezone = timezone_str
 
             # Persistir estados no config
+            frequency = self.frequency_combo.currentData() if hasattr(self, 'frequency_combo') and self.frequency_combo.currentData() else "daily"
+            self.config["frequency"] = frequency
             self.config["avoid_holidays"] = avoid_holidays
             self.config["avoid_bridges"] = avoid_bridges
             self.config["state"] = state
@@ -1270,7 +1298,8 @@ class MainWindow(QMainWindow):
             self._gen_thread = GenerateWavesThread(
                 self.scheduler, num_waves, devices_per_wave,
                 start_date, avoid_holidays, country_code,
-                state=state, city=city, avoid_bridges=avoid_bridges
+                state=state, city=city, avoid_bridges=avoid_bridges,
+                frequency=frequency
             )
             self._gen_thread.progress.connect(self._on_progress)
             self._gen_thread.finished.connect(self._on_generation_done)

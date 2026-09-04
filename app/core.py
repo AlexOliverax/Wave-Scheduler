@@ -95,9 +95,9 @@ class WavesScheduler:
         """
         return max(1, int(np.ceil(total_devices / devices_per_wave)))
     
-    def generate_wave_labels(self, start_date, num_waves, avoid_holidays=True, country_code="BR", state=None, city=None, avoid_bridges=False):
+    def generate_wave_labels(self, start_date, num_waves, avoid_holidays=True, country_code="BR", state=None, city=None, avoid_bridges=False, frequency="daily"):
         """
-        Gera rótulos de waves baseados na data inicial, pulando finais de semana, feriados (nacionais/estaduais/municipais) e pontes.
+        Gera rótulos de waves baseados na data inicial e na frequência (diária ou semanal).
 
         Args:
             start_date (datetime): Data inicial para a primeira wave
@@ -107,33 +107,41 @@ class WavesScheduler:
             state (str, optional): Estado para feriados estaduais
             city (str, optional): Cidade para feriados municipais
             avoid_bridges (bool): Se True, pula emendas de feriado (pontes)
+            frequency (str): "daily" ou "weekly"
 
         Returns:
             list: Lista de rótulos de waves
         """
         wave_labels = []
         current_date = start_date
-        wave_count = 0
 
-        # Pré-carregar feriados do ano (e do próximo, caso ultrapasse)
         holidays_set = set()
         if avoid_holidays:
-            for yr in {start_date.year, start_date.year + 1}:
+            for yr in {start_date.year, start_date.year + 1, start_date.year + 2}:
                 holidays_set.update(get_accumulated_holidays_dict(yr, country_code, state, city).keys())
 
-        while wave_count < num_waves:
-            current_day = current_date.date() if hasattr(current_date, 'date') else current_date
-            weekday = current_date.weekday()
-            is_weekend = weekday >= 5
-            is_holiday = avoid_holidays and current_day in holidays_set
-            is_bridge = avoid_bridges and is_bridge_day(current_day, country_code, state, city)
-
-            if not is_weekend and not is_holiday and not is_bridge:
-                wave_label = f"Wave {wave_count+1} - {current_date.strftime('%d/%m/%Y')}"
+        if frequency == "weekly":
+            for wave_count in range(num_waves):
+                week_start = current_date
+                week_end = week_start + timedelta(days=4)  # Janela de Segunda a Sexta
+                wave_label = f"Wave {wave_count+1} - {week_start.strftime('%d/%m/%Y')} a {week_end.strftime('%d/%m/%Y')}"
                 wave_labels.append(wave_label)
-                wave_count += 1
+                current_date += timedelta(days=7)
+        else:
+            wave_count = 0
+            while wave_count < num_waves:
+                current_day = current_date.date() if hasattr(current_date, 'date') else current_date
+                weekday = current_date.weekday()
+                is_weekend = weekday >= 5
+                is_holiday = avoid_holidays and current_day in holidays_set
+                is_bridge = avoid_bridges and is_bridge_day(current_day, country_code, state, city)
 
-            current_date += timedelta(days=1)
+                if not is_weekend and not is_holiday and not is_bridge:
+                    wave_label = f"Wave {wave_count+1} - {current_date.strftime('%d/%m/%Y')}"
+                    wave_labels.append(wave_label)
+                    wave_count += 1
+
+                current_date += timedelta(days=1)
 
         return wave_labels
     
@@ -186,16 +194,23 @@ class WavesScheduler:
         
         return groups
     
-    def distribute_devices(self, num_waves, devices_per_wave):
+    def distribute_devices(self, num_waves, devices_per_wave, start_date=None, avoid_holidays=True, country_code="BR", state=None, city=None, avoid_bridges=False, frequency="daily"):
         """
         Distribute devices into waves, ensuring similar devices are spread across waves.
         
         Args:
             num_waves (int): Number of waves
-            devices_per_wave (int): Maximum number of devices per wave
+            devices_per_wave (int): Maximum number of devices per wave per day
+            start_date (datetime, optional): Data inicial para cálculo das datas agendadas
+            avoid_holidays (bool): Evitar feriados
+            country_code (str): País
+            state (str, optional): Estado
+            city (str, optional): Cidade
+            avoid_bridges (bool): Evitar pontes
+            frequency (str): "daily" ou "weekly"
             
         Returns:
-            dict: Dictionary mapping wave labels to lists of device indices
+            dict: Dictionary mapping wave labels to lists of device dicts
         """
         if self.data is None or self.total_devices == 0:
             logger.error("No data loaded")
@@ -208,33 +223,64 @@ class WavesScheduler:
         waves = [[] for _ in range(num_waves)]
         wave_counts = [0] * num_waves
         
+        # No modo semanal, a capacidade total da semana é de até 5 dias úteis de capacidade diária
+        max_per_wave = devices_per_wave * 5 if frequency == "weekly" else devices_per_wave
+
         # Distribute groups across waves
         for group_key, device_indices in sorted(device_groups.items(), key=lambda x: len(x[1]), reverse=True):
-            # For each device in the group
             for idx in device_indices:
-                # Find the wave with the fewest devices
                 target_wave = wave_counts.index(min(wave_counts))
-                
-                # Add device to wave if not full
-                if wave_counts[target_wave] < devices_per_wave:
+                if wave_counts[target_wave] < max_per_wave:
                     waves[target_wave].append(idx)
                     wave_counts[target_wave] += 1
                 else:
-                    # Find next available wave
                     for w in range(num_waves):
-                        if wave_counts[w] < devices_per_wave:
+                        if wave_counts[w] < max_per_wave:
                             waves[w].append(idx)
                             wave_counts[w] += 1
                             break
-        
+
+        holidays_set = set()
+        if avoid_holidays and start_date:
+            for yr in {start_date.year, start_date.year + 1, start_date.year + 2}:
+                holidays_set.update(get_accumulated_holidays_dict(yr, country_code, state, city).keys())
+
         # Create wave distribution dictionary
         wave_distribution = {}
         for i, wave_devices in enumerate(waves):
-            if wave_devices:  # Only include waves with devices
-                wave_label = f"Wave {i+1}"
-                wave_distribution[wave_label] = [self.data.iloc[idx].to_dict() for idx in wave_devices]
-        
-        logger.info(f"Distributed {self.total_devices} devices into {len(wave_distribution)} waves")
+            if wave_devices:
+                wave_key = f"Wave {i+1}"
+                device_dicts = []
+
+                if frequency == "weekly" and start_date:
+                    week_start_date = start_date + timedelta(days=i * 7)
+                    active_days = []
+                    for d_offset in range(7):
+                        day_dt = week_start_date + timedelta(days=d_offset)
+                        day_date = day_dt.date() if hasattr(day_dt, 'date') else day_dt
+                        weekday = day_dt.weekday()
+                        is_wnd = weekday >= 5
+                        is_hol = avoid_holidays and day_date in holidays_set
+                        is_brg = avoid_bridges and is_bridge_day(day_date, country_code, state, city)
+                        if not is_wnd and not is_hol and not is_brg:
+                            active_days.append(day_dt)
+
+                    if not active_days:
+                        active_days = [week_start_date + timedelta(days=d) for d in range(5)]
+
+                    for dev_idx, idx in enumerate(wave_devices):
+                        d_dict = self.data.iloc[idx].to_dict()
+                        assigned_day = active_days[dev_idx % len(active_days)]
+                        d_dict["Data Agendada"] = assigned_day.strftime("%d/%m/%Y")
+                        device_dicts.append(d_dict)
+                else:
+                    for idx in wave_devices:
+                        d_dict = self.data.iloc[idx].to_dict()
+                        device_dicts.append(d_dict)
+
+                wave_distribution[wave_key] = device_dicts
+
+        logger.info(f"Distributed {self.total_devices} devices into {len(wave_distribution)} waves (frequency={frequency})")
         return wave_distribution
     
     def generate_csv(self, output_path, wave_distribution, wave_labels):
